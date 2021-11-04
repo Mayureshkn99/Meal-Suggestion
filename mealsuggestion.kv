@@ -1,13 +1,41 @@
-BoxLayoutExample:
+#:import SlideTransition kivy.uix.screenmanager.SlideTransition
 
-<BoxLayoutExample>:
-    orientation: "vertical"
-    Label:
-        text: "Meal Suggestion"
-        size_hint: 1, 0.3
-    Button:
-        text: "Add Meal"
-    Button:
-        text: "View Meal"
-    Button:
-        text: "Suggest Meal"
+WindowManager:
+    transition: SlideTransition(direction='right')
+    HomePage:
+    MealTypeSelectionPage:
+
+
+<HomePage>:
+    name: "HomePage"
+    BoxLayout:
+        size: root.width, root.height
+        orientation: "vertical"
+        Label:
+            text: "Meal Suggestion"
+            size_hint_y: None
+            height: "50dp"
+        Button:
+            text: "Add Meal"
+            on_release:
+                app.root.current = "MealTypeSelectionPage"
+                root.manager.transition.direction = "left"
+        Button:
+            text: "View Meal"
+        Button:
+            text: "Suggest Meal"
+
+
+<MealTypeSelectionPage>:
+    name: "MealTypeSelectionPage"
+    BoxLayout:
+        size: root.width, root.height
+        orientation: "vertical"
+        Label:
+            text: "Meal Suggestion"
+            size_hint_y: None
+            height: "50dp"
+        Button:
+            text: "Restaurant"
+        Button:
+            text: "Home Made"
