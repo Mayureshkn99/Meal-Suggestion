@@ -1,9 +1,11 @@
-#:import SlideTransition kivy.uix.screenmanager.SlideTransition
-
 WindowManager:
-    transition: SlideTransition(direction='right')
     HomePage:
     MealTypeSelectionPage:
+    AddRestaurantMealPage:
+    AddHomeMadeMealPage:
+    ViewMealsPage:
+    SuggestionPage:
+    ResultPage:
 
 
 <HomePage>:
@@ -22,8 +24,14 @@ WindowManager:
                 root.manager.transition.direction = "left"
         Button:
             text: "View Meal"
+            on_release:
+                app.root.current = "ViewMealsPage"
+                root.manager.transition.direction = "left"
         Button:
             text: "Suggest Meal"
+            on_release:
+                app.root.current = "SuggestionPage"
+                root.manager.transition.direction = "left"
 
 
 <MealTypeSelectionPage>:
@@ -37,5 +45,201 @@ WindowManager:
             height: "50dp"
         Button:
             text: "Restaurant"
+            on_release:
+                app.root.current = "AddRestaurantMealPage"
+                root.manager.transition.direction = "left"
         Button:
-            text: "Home Made"
+            text: "Home-Made"
+            on_release:
+                app.root.current = "AddHomeMadeMealPage"
+                root.manager.transition.direction = "left"
+
+
+<AddRestaurantMealPage>:
+    name: "AddRestaurantMealPage"
+    BoxLayout:
+        size: root.width, root.height
+        orientation: "vertical"
+        Label:
+            text: "Meal Suggestion"
+            size_hint_y: None
+            height: "50dp"
+        GridLayout:
+            cols: 2
+            size_hint_y: None
+            height: "50dp"
+            Label:
+                text: "Choose Meal Type: "
+            Spinner:
+                id: meal_type
+                text: "Breakfast"
+                values: ["Breakfast", "Lunch", "Dinner", "Snack"]
+        Label:
+            text: "Dish Name:"
+            text_size: self.size
+            halign: "left"
+            size_hint_y: None
+            height: "20dp"
+        TextInput:
+            size_hint_y: None
+            height: "50dp"
+            multiline: False
+        Label:
+            text: "Restaurant Name:"
+            text_size: self.size
+            halign: "left"
+            size_hint_y: None
+            height: "20dp"
+        TextInput:
+            size_hint_y: None
+            height: "50dp"
+            multiline: False
+        Label:
+            text: "Restaurant Number:"
+            text_size: self.size
+            halign: "left"
+            size_hint_y: None
+            height: "20dp"
+        TextInput:
+            size_hint_y: None
+            height: "50dp"
+            multiline: False
+        Label:
+            text: "Delivery link:"
+            text_size: self.size
+            halign: "left"
+            size_hint_y: None
+            height: "20dp"
+        TextInput:
+            multiline: True
+        Button:
+            text: "Add Meal"
+            size_hint_y: None
+            height: "50dp"
+            on_release:
+                app.root.current = "HomePage"
+                root.manager.transition.direction = "right"
+
+
+<AddHomeMadeMealPage>:
+    name: "AddHomeMadeMealPage"
+    BoxLayout:
+        size: root.width, root.height
+        orientation: "vertical"
+        Label:
+            text: "Meal Suggestion"
+            size_hint_y: None
+            height: "50dp"
+        GridLayout:
+            cols: 2
+            size_hint_y: None
+            height: "50dp"
+            Label:
+                text: "Choose Meal Type: "
+            Spinner:
+                id: meal_type
+                text: "Breakfast"
+                values: ["Breakfast", "Lunch", "Dinner", "Snack"]
+        Label:
+            text: "Dish Name:"
+            text_size: self.size
+            halign: "left"
+            size_hint_y: None
+            height: "20dp"
+        TextInput:
+            size_hint_y: None
+            height: "50dp"
+            multiline: False
+        Label:
+            text: "Ingredients:"
+            text_size: self.size
+            halign: "left"
+            size_hint_y: None
+            height: "20dp"
+        TextInput:
+            multiline: True
+        Label:
+            text: "Recipe:"
+            text_size: self.size
+            halign: "left"
+            size_hint_y: None
+            height: "20dp"
+        TextInput:
+            multiline: True
+        Button:
+            text: "Add Meal"
+            size_hint_y: None
+            height: "50dp"
+            on_release:
+                app.root.current = "HomePage"
+                root.manager.transition.direction = "right"
+
+
+<ViewMealsPage>:
+    name: "ViewMealsPage"
+    BoxLayout:
+        size: root.width, root.height
+        orientation: "vertical"
+        Label:
+            text: "Meal Suggestion"
+            size_hint_y: None
+            height: "50dp"
+
+
+<SuggestionPage>:
+    name: "SuggestionPage"
+    BoxLayout:
+        size: root.width, root.height
+        orientation: "vertical"
+        Label:
+            text: "Meal Suggestion"
+            size_hint_y: None
+            height: "50dp"
+        GridLayout:
+            cols: 2
+            size_hint_y: None
+            height: "50dp"
+            Label:
+                text: "Choose Meal From: "
+            Spinner:
+                id: meal_from
+                text: "Home-made"
+                values: ["Home-made", "Restaurant", "Mix"]
+        Label:
+            text: ""
+            size_hint: 1, 0.5
+        GridLayout:
+            cols: 2
+            Label:
+                text: "Choose Meal Type: "
+                size_hint_y: None
+                height: "50dp"
+            Spinner:
+                id: meal_type
+                size_hint_y: None
+                height: "50dp"
+                text: "Breakfast"
+                values: ["Breakfast", "Lunch", "Dinner", "Snack"]
+        Button:
+            text: "Suggest Meal"
+            size_hint_y: None
+            height: "50dp"
+            on_release:
+                app.root.current = "ResultPage"
+                root.manager.transition.direction = "left"
+
+
+<ResultPage>:
+    name: "ResultPage"
+    BoxLayout:
+        size: root.width, root.height
+        orientation: "vertical"
+        Label:
+            text: "Meal Suggestion"
+            size_hint_y: None
+            height: "50dp"
+        Button:
+            text: "Change"
+            size_hint_y: None
+            height: "50dp"
+            on_release:

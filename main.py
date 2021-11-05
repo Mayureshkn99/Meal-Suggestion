@@ -14,6 +14,26 @@ class MealTypeSelectionPage(Screen):
     pass
 
 
+class AddHomeMadeMealPage(Screen):
+    pass
+
+
+class AddRestaurantMealPage(Screen):
+    pass
+
+
+class ViewMealsPage(Screen):
+    pass
+
+
+class SuggestionPage(Screen):
+    pass
+
+
+class ResultPage(Screen):
+    pass
+
+
 class WindowManager(ScreenManager):
     def __init__(self, **kwargs):
         super(WindowManager, self).__init__(**kwargs)
@@ -25,6 +45,27 @@ class WindowManager(ScreenManager):
                 return False  # exit the app from this page
             elif self.current_screen.name == "MealTypeSelectionPage":
                 self.current = "HomePage"
+                self.transition.direction = "right"
+                return True  # do not exit the app
+            elif self.current_screen.name == "AddRestaurantMealPage":
+                self.current = "MealTypeSelectionPage"
+                self.transition.direction = "right"
+                return True  # do not exit the app
+            elif self.current_screen.name == "AddHomeMadeMealPage":
+                self.current = "MealTypeSelectionPage"
+                self.transition.direction = "right"
+                return True  # do not exit the app
+            elif self.current_screen.name == "ViewMealsPage":
+                self.current = "HomePage"
+                self.transition.direction = "right"
+                return True  # do not exit the app
+            elif self.current_screen.name == "SuggestionPage":
+                self.current = "HomePage"
+                self.transition.direction = "right"
+                return True  # do not exit the app
+            elif self.current_screen.name == "ResultPage":
+                self.current = "SuggestionPage"
+                self.transition.direction = "right"
                 return True  # do not exit the app
 
 
