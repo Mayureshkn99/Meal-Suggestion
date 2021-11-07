@@ -2,8 +2,10 @@
 
 from kivy.app import App
 from kivy.lang import Builder
+from kivy.storage.jsonstore import JsonStore
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
+from kivy.uix.button import Button
 
 
 class HomePage(Screen):
@@ -19,11 +21,31 @@ class AddHomeMadeMealPage(Screen):
 
 
 class AddRestaurantMealPage(Screen):
-    pass
+
+    def __init__(self, **kwargs):
+        super(AddRestaurantMealPage, self).__init__(**kwargs)
+        self.store = JsonStore("database.json")
+
+    def add_meal(self):
+        self.store.put(self.dish_name.text,
+                       restaurant_name=self.restaurant_name.text)
+        # dish_name = self.dish_name.text
+        # self.store.put("Dishes",
+        #                str(self.dish_name.text) = "")
 
 
 class ViewMealsPage(Screen):
-    pass
+    def __init__(self, **kwargs):
+        super(ViewMealsPage, self).__init__(**kwargs)
+
+    def on_enter(self):
+        self.store = JsonStore("database.json")
+        meals = self.store.keys()
+        for meal in meals:
+            self.meal = Button(text=meal, size_hint=(0.9, None), height="50dp")
+            self.grid.add_widget(self.meal)
+            self.delete = Button(text = "x", size_hint=(0.1, None), height="50dp")
+            self.grid.add_widget(self.delete)
 
 
 class SuggestionPage(Screen):
@@ -35,6 +57,7 @@ class ResultPage(Screen):
 
 
 class WindowManager(ScreenManager):
+
     def __init__(self, **kwargs):
         super(WindowManager, self).__init__(**kwargs)
         Window.bind(on_keyboard=self.on_key)

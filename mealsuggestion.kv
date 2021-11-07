@@ -57,6 +57,8 @@ WindowManager:
 
 <AddRestaurantMealPage>:
     name: "AddRestaurantMealPage"
+    dish_name: dish_name
+    restaurant_name: restaurant_name
     BoxLayout:
         size: root.width, root.height
         orientation: "vertical"
@@ -65,15 +67,29 @@ WindowManager:
             size_hint_y: None
             height: "50dp"
         GridLayout:
-            cols: 2
-            size_hint_y: None
-            height: "50dp"
+            cols: 3
             Label:
                 text: "Choose Meal Type: "
-            Spinner:
-                id: meal_type
-                text: "Breakfast"
-                values: ["Breakfast", "Lunch", "Dinner", "Snack"]
+            BoxLayout:
+                orientation: "vertical"
+                CheckBox:
+                    on_active:
+                CheckBox:
+                    on_active:
+                CheckBox:
+                    on_active:
+                CheckBox:
+                    on_active:
+            BoxLayout:
+                orientation: "vertical"
+                Label:
+                    text: "Breakfast"
+                Label:
+                    text: "Lunch"
+                Label:
+                    text: "Dinner"
+                Label:
+                    text: "Snack"
         Label:
             text: "Dish Name:"
             text_size: self.size
@@ -81,6 +97,7 @@ WindowManager:
             size_hint_y: None
             height: "20dp"
         TextInput:
+            id: dish_name
             size_hint_y: None
             height: "50dp"
             multiline: False
@@ -91,6 +108,7 @@ WindowManager:
             size_hint_y: None
             height: "20dp"
         TextInput:
+            id: restaurant_name
             size_hint_y: None
             height: "50dp"
             multiline: False
@@ -117,6 +135,7 @@ WindowManager:
             size_hint_y: None
             height: "50dp"
             on_release:
+                root.add_meal()
                 app.root.current = "HomePage"
                 root.manager.transition.direction = "right"
 
@@ -131,15 +150,29 @@ WindowManager:
             size_hint_y: None
             height: "50dp"
         GridLayout:
-            cols: 2
-            size_hint_y: None
-            height: "50dp"
+            cols: 3
             Label:
                 text: "Choose Meal Type: "
-            Spinner:
-                id: meal_type
-                text: "Breakfast"
-                values: ["Breakfast", "Lunch", "Dinner", "Snack"]
+            BoxLayout:
+                orientation: "vertical"
+                CheckBox:
+                    on_active:
+                CheckBox:
+                    on_active:
+                CheckBox:
+                    on_active:
+                CheckBox:
+                    on_active:
+            BoxLayout:
+                orientation: "vertical"
+                Label:
+                    text: "Breakfast"
+                Label:
+                    text: "Lunch"
+                Label:
+                    text: "Dinner"
+                Label:
+                    text: "Snack"
         Label:
             text: "Dish Name:"
             text_size: self.size
@@ -177,6 +210,7 @@ WindowManager:
 
 <ViewMealsPage>:
     name: "ViewMealsPage"
+    grid: grid
     BoxLayout:
         size: root.width, root.height
         orientation: "vertical"
@@ -184,6 +218,12 @@ WindowManager:
             text: "Meal Suggestion"
             size_hint_y: None
             height: "50dp"
+        ScrollView:
+            GridLayout:
+                id: grid
+                cols: 2
+                size_hint: 1, None
+                height: self.minimum_height
 
 
 <SuggestionPage>:
