@@ -6,8 +6,10 @@ from kivy.storage.jsonstore import JsonStore
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
 from kivy.uix.button import Button
+from functools import partial
 
 DATABASE_CHANGED = True
+MEALS = []
 
 class HomePage(Screen):
     pass
@@ -37,6 +39,8 @@ class AddRestaurantMealPage(Screen):
                        restaurant_name=self.ids.restaurant_name.text,
                        restaurant_number=self.ids.restaurant_number.text,
                        delivery_links=self.ids.delivery_links.text)
+        global DATABASE_CHANGED
+        DATABASE_CHANGED = True
 
 
 class AddHomeMadeMealPage(Screen):
@@ -67,20 +71,31 @@ class ViewMealsPage(Screen):
         super(ViewMealsPage, self).__init__(**kwargs)
 
     def on_enter(self):
-        global DATABASE_CHANGED
+        global DATABASE_CHANGED, MEALS
         if DATABASE_CHANGED:
             DATABASE_CHANGED = False
             self.store = JsonStore("database.json")
             meals = self.store.keys()
             for meal in meals:
-                self.meal = Button(text=meal, size_hint=(0.9, None), height="50dp", on_release=self.btn_press)
-                self.ids.grid.add_widget(self.meal)
-                self.delete = Button(text = "x", size_hint=(0.1, None), height="50dp")
-                self.ids.grid.add_widget(self.delete)
+                if meal not in MEALS:
+                    MEALS.append(meal)
+                    self.meal = Button(text=meal, size_hint=(0.9, None), height="50dp", on_release=self.edit_meal)
+                    self.ids[meal] = self.meal
+                    self.ids.grid.add_widget(self.meal)
+                    self.delete = Button(text = "x", size_hint=(0.1, None), height="50dp",
+                                         on_release=partial(self.delete_meal, meal))
+                    self.ids[meal+"_del"] = self.meal
+                    self.ids.grid.add_widget(self.delete)
 
-    def btn_press(self, _):
+    def edit_meal(self, _):
         self.manager.current = "EditRestaurantMealPage"
         self.manager.transition.direction = "left"
+
+    def delete_meal(self, id, instance):
+        self.store.delete(id)
+        MEALS.remove(id)
+        self.ids.grid.remove_widget(self.ids[id])
+        self.ids.grid.remove_widget(instance)
 
 
 class EditRestaurantMealPage(Screen):
