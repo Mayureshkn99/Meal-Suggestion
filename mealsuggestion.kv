@@ -247,12 +247,16 @@ WindowManager:
             BoxLayout:
                 orientation: "vertical"
                 CheckBox:
+                    id: breakfast
                     on_active:
                 CheckBox:
+                    id: lunch
                     on_active:
                 CheckBox:
+                    id: dinner
                     on_active:
                 CheckBox:
+                    id: snacks
                     on_active:
             BoxLayout:
                 orientation: "vertical"
@@ -263,7 +267,7 @@ WindowManager:
                 Label:
                     text: "Dinner"
                 Label:
-                    text: "Snack"
+                    text: "Snacks"
         Label:
             text: "Dish Name:"
             text_size: self.size
@@ -293,6 +297,7 @@ WindowManager:
             size_hint_y: None
             height: "20dp"
         TextInput:
+            id: restaurant_number
             size_hint_y: None
             height: "50dp"
             multiline: False
@@ -303,9 +308,10 @@ WindowManager:
             size_hint_y: None
             height: "20dp"
         TextInput:
+            id: delivery_links
             multiline: True
         Button:
-            text: "Save"
+            text: "Save Changes"
             size_hint_y: None
             height: "50dp"
             on_release:
@@ -329,12 +335,16 @@ WindowManager:
             BoxLayout:
                 orientation: "vertical"
                 CheckBox:
+                    id: breakfast
                     on_active:
                 CheckBox:
+                    id: lunch
                     on_active:
                 CheckBox:
+                    id: dinner
                     on_active:
                 CheckBox:
+                    id: snacks
                     on_active:
             BoxLayout:
                 orientation: "vertical"
@@ -345,7 +355,7 @@ WindowManager:
                 Label:
                     text: "Dinner"
                 Label:
-                    text: "Snack"
+                    text: "Snacks"
         Label:
             text: "Dish Name:"
             text_size: self.size
@@ -353,6 +363,7 @@ WindowManager:
             size_hint_y: None
             height: "20dp"
         TextInput:
+            id: dish_name
             size_hint_y: None
             height: "50dp"
             multiline: False
@@ -363,6 +374,7 @@ WindowManager:
             size_hint_y: None
             height: "20dp"
         TextInput:
+            id: ingredients
             multiline: True
         Label:
             text: "Recipe:"
@@ -371,9 +383,10 @@ WindowManager:
             size_hint_y: None
             height: "20dp"
         TextInput:
+            id: recipe
             multiline: True
         Button:
-            text: "Add Meal"
+            text: "Save Changes"
             size_hint_y: None
             height: "50dp"
             on_release:

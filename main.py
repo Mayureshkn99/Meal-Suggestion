@@ -81,22 +81,56 @@ class ViewMealsPage(Screen):
                 if meal not in MEALS:
                     MEALS.append(meal)
                     if "ingredients" in self.store[meal].keys():
-                        function = self.edit_home_made_meal
+                        function = partial(self.edit_home_made_meal, meal)
                     else:
-                        function = self.edit_restaurant_meal
+                        function = partial(self.edit_restaurant_meal, meal)
                     self.meal = Button(text=meal, size_hint=(0.9, None), height="50dp", on_release=function)
                     self.ids[meal] = self.meal
                     self.ids.grid.add_widget(self.meal)
                     self.delete = Button(text="x", size_hint=(0.1, None), height="50dp",
                                          on_release=partial(self.delete_meal, meal))
-                    self.ids[meal + "_del"] = self.meal
                     self.ids.grid.add_widget(self.delete)
 
-    def edit_restaurant_meal(self, _):
+    def edit_restaurant_meal(self, meal, _):
+        Screen = self.manager.get_screen("EditRestaurantMealPage")
+        meal_type = self.store[meal]["meal_type"]
+        Screen.ids.breakfast.active = False
+        Screen.ids.lunch.active = False
+        Screen.ids.dinner.active = False
+        Screen.ids.snacks.active = False
+        if "Breakfast" in meal_type:
+            Screen.ids.breakfast.active = True
+        if "Lunch" in meal_type:
+            Screen.ids.lunch.active = True
+        if "Dinner" in meal_type:
+            Screen.ids.dinner.active = True
+        if "Snacks" in meal_type:
+            Screen.ids.snacks.active = True
+        Screen.ids.dish_name.text = meal
+        Screen.ids.restaurant_name.text = self.store[meal]["restaurant_name"]
+        Screen.ids.restaurant_number.text = self.store[meal]["restaurant_number"]
+        Screen.ids.delivery_links.text = self.store[meal]["delivery_links"]
         self.manager.current = "EditRestaurantMealPage"
         self.manager.transition.direction = "left"
 
-    def edit_home_made_meal(self, _):
+    def edit_home_made_meal(self, meal, _):
+        Screen = self.manager.get_screen("EditHomeMadeMealPage")
+        meal_type = self.store[meal]["meal_type"]
+        Screen.ids.breakfast.active = False
+        Screen.ids.lunch.active = False
+        Screen.ids.dinner.active = False
+        Screen.ids.snacks.active = False
+        if "Breakfast" in meal_type:
+            Screen.ids.breakfast.active = True
+        if "Lunch" in meal_type:
+            Screen.ids.lunch.active = True
+        if "Dinner" in meal_type:
+            Screen.ids.dinner.active = True
+        if "Snacks" in meal_type:
+            Screen.ids.snacks.active = True
+        Screen.ids.dish_name.text = meal
+        Screen.ids.ingredients.text = self.store[meal]["ingredients"]
+        Screen.ids.recipe.text = self.store[meal]["recipe"]
         self.manager.current = "EditHomeMadeMealPage"
         self.manager.transition.direction = "left"
 
@@ -136,9 +170,7 @@ class ResultPage(Screen):
                     self.options.append(meal)
         self.meal = choice(self.options)
         self.ids.dish_name.text = self.meal
-        print("Before:\n", self.ids.meal_details.children)
         self.ids.meal_details.clear_widgets()
-        print("After:\n", self.ids.meal_details.children)
         if "ingredients" in self.store[self.meal].keys():  # Home-made
             self.ingredients_label = Label(text="Ingredients:", font_size=25, text_size=(self.width, None),
                                            halign="left", size_hint_y=None, height="30dp")
@@ -155,9 +187,31 @@ class ResultPage(Screen):
             self.ids.meal_details.add_widget(Label(size_hint_y=None, height="30dp"))
             self.ids.meal_details.add_widget(self.recipe_label)
             self.ids.meal_details.add_widget(self.recipe)
-            self.ids.meal_details.add_widget(Label())
-        else:
-            pass
+        else:  # Restaurant
+            self.restaurant_name_label = Label(text="Restaurant Name:", font_size=25, text_size=(self.width, None),
+                                               halign="left", size_hint_y=None, height="30dp")
+            self.restaurant_name = Label(text=self.store[self.meal]["restaurant_name"], size_hint_y=None,
+                                         text_size=(self.width, None), halign="left")
+            self.restaurant_name.bind(height=self.restaurant_name.setter("texture_size[1]"))
+            self.restaurant_number_label = Label(text="Restaurant Number:", font_size=25, text_size=(self.width, None),
+                                                 halign="left", size_hint_y=None, height="30dp")
+            self.restaurant_number = Label(text=self.store[self.meal]["restaurant_number"], size_hint_y=None,
+                                           text_size=(self.width, None), halign="left")
+            self.restaurant_number.bind(height=self.restaurant_number.setter("texture_size[1]"))
+            self.delivery_links_label = Label(text="Order From:", font_size=25, text_size=(self.width, None),
+                                              halign="left", size_hint_y=None, height="30dp")
+            self.delivery_links = Label(text=self.store[self.meal]["delivery_links"], size_hint_y=None,
+                                        text_size=(self.width, None), halign="left")
+            self.delivery_links.bind(height=self.delivery_links.setter("texture_size[1]"))
+            self.ids.meal_details.add_widget(self.restaurant_name_label)
+            self.ids.meal_details.add_widget(self.restaurant_name)
+            self.ids.meal_details.add_widget(Label(size_hint_y=None, height="30dp"))
+            self.ids.meal_details.add_widget(self.restaurant_number_label)
+            self.ids.meal_details.add_widget(self.restaurant_number)
+            self.ids.meal_details.add_widget(Label(size_hint_y=None, height="30dp"))
+            self.ids.meal_details.add_widget(self.delivery_links_label)
+            self.ids.meal_details.add_widget(self.delivery_links)
+        self.ids.meal_details.add_widget(Label())
 
 
 class WindowManager(ScreenManager):
@@ -206,12 +260,13 @@ class WindowManager(ScreenManager):
                 return True  # do not exit the app
 
 
-kv = Builder.load_file("mealsuggestion.kv")
+# kv = Builder.load_file("mealsuggestion.kv")
 
 
 class MealSuggestionApp(App):
-    def build(self):
-        return kv
+    pass
+    # def build(self):
+    #     return kv
 
 
 if __name__ == "__main__":
