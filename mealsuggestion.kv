@@ -73,13 +73,13 @@ WindowManager:
             BoxLayout:
                 orientation: "vertical"
                 CheckBox:
-                    on_active: root.get_meal_types(self, self.active, "Breakfast")
+                    id: Breakfast
                 CheckBox:
-                    on_active: root.get_meal_types(self, self.active, "Lunch")
+                    id: Lunch
                 CheckBox:
-                    on_active: root.get_meal_types(self, self.active, "Dinner")
+                    id: Dinner
                 CheckBox:
-                    on_active: root.get_meal_types(self, self.active, "Snacks")
+                    id: Snacks
             BoxLayout:
                 orientation: "vertical"
                 Label:
@@ -158,13 +158,13 @@ WindowManager:
             BoxLayout:
                 orientation: "vertical"
                 CheckBox:
-                    on_active: root.get_meal_types(self, self.active, "Breakfast")
+                    id: Breakfast
                 CheckBox:
-                    on_active: root.get_meal_types(self, self.active, "Lunch")
+                    id: Lunch
                 CheckBox:
-                    on_active: root.get_meal_types(self, self.active, "Dinner")
+                    id: Dinner
                 CheckBox:
-                    on_active: root.get_meal_types(self, self.active, "Snacks")
+                    id: Snacks
             BoxLayout:
                 orientation: "vertical"
                 Label:
@@ -248,16 +248,16 @@ WindowManager:
                 orientation: "vertical"
                 CheckBox:
                     id: breakfast
-                    on_active:
+                    on_active: root.get_meal_types(self, self.active, "Breakfast")
                 CheckBox:
                     id: lunch
-                    on_active:
+                    on_active: root.get_meal_types(self, self.active, "Lunch")
                 CheckBox:
                     id: dinner
-                    on_active:
+                    on_active: root.get_meal_types(self, self.active, "Dinner")
                 CheckBox:
                     id: snacks
-                    on_active:
+                    on_active: root.get_meal_types(self, self.active, "Snacks")
             BoxLayout:
                 orientation: "vertical"
                 Label:
@@ -315,7 +315,8 @@ WindowManager:
             size_hint_y: None
             height: "50dp"
             on_release:
-                app.root.current = "HomePage"
+                root.save_changes()
+                app.root.current = "ViewMealsPage"
                 root.manager.transition.direction = "right"
 
 
@@ -336,16 +337,16 @@ WindowManager:
                 orientation: "vertical"
                 CheckBox:
                     id: breakfast
-                    on_active:
+                    on_active: root.get_meal_types(self, self.active, "Breakfast")
                 CheckBox:
                     id: lunch
-                    on_active:
+                    on_active: root.get_meal_types(self, self.active, "Lunch")
                 CheckBox:
                     id: dinner
-                    on_active:
+                    on_active: root.get_meal_types(self, self.active, "Dinner")
                 CheckBox:
                     id: snacks
-                    on_active:
+                    on_active: root.get_meal_types(self, self.active, "Snacks")
             BoxLayout:
                 orientation: "vertical"
                 Label:
@@ -390,7 +391,8 @@ WindowManager:
             size_hint_y: None
             height: "50dp"
             on_release:
-                app.root.current = "HomePage"
+                root.save_changes()
+                app.root.current = "ViewMealsPage"
                 root.manager.transition.direction = "right"
 
 

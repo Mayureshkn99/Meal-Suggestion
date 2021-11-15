@@ -23,46 +23,57 @@ class MealTypeSelectionPage(Screen):
 
 
 class AddRestaurantMealPage(Screen):
-    meal_types = []
 
     def __init__(self, **kwargs):
         super(AddRestaurantMealPage, self).__init__(**kwargs)
         self.store = JsonStore("database.json")
 
-    def get_meal_types(self, _, value, meal_type):
-        if value:
-            self.meal_types.append(meal_type)
-        else:
-            self.meal_types.remove(meal_type)
-
     def add_meal(self):
+        self.meal_types = []
+        self.meal_ids = ["Breakfast", "Lunch", "Dinner", "Snacks"]
+        for meal_id in self.meal_ids:
+            if self.ids[meal_id].active:
+                self.meal_types.append(meal_id)
+
         self.store.put(self.ids.dish_name.text,
                        meal_type=self.meal_types,
                        restaurant_name=self.ids.restaurant_name.text,
                        restaurant_number=self.ids.restaurant_number.text,
                        delivery_links=self.ids.delivery_links.text)
+
+        for meal_id in self.meal_ids:
+            self.ids[meal_id].active = False
+        self.ids.dish_name.text = ""
+        self.ids.restaurant_name.text = ""
+        self.ids.restaurant_number.text = ""
+        self.ids.delivery_links.text = ""
         global DATABASE_CHANGED
         DATABASE_CHANGED = True
 
 
 class AddHomeMadeMealPage(Screen):
-    meal_types = []
 
     def __init__(self, **kwargs):
         super(AddHomeMadeMealPage, self).__init__(**kwargs)
         self.store = JsonStore("database.json")
 
-    def get_meal_types(self, _, value, meal_type):
-        if value:
-            self.meal_types.append(meal_type)
-        else:
-            self.meal_types.remove(meal_type)
-
     def add_meal(self):
+        self.meal_types = []
+        self.meal_ids = ["Breakfast", "Lunch", "Dinner", "Snacks"]
+        for meal_id in self.meal_ids:
+            if self.ids[meal_id].active:
+                self.meal_types.append(meal_id)
+
         self.store.put(self.ids.dish_name.text,
                        meal_type=self.meal_types,
                        ingredients=self.ids.ingredients.text,
                        recipe=self.ids.recipe.text)
+
+        for meal_id in self.meal_ids:
+            self.ids[meal_id].active = False
+        self.ids.dish_name.text = ""
+        self.ids.ingredients.text = ""
+        self.ids.recipe.text = ""
         global DATABASE_CHANGED
         DATABASE_CHANGED = True
 
@@ -142,11 +153,64 @@ class ViewMealsPage(Screen):
 
 
 class EditRestaurantMealPage(Screen):
-    pass
+    meal_types = []
+
+    def __init__(self, **kwargs):
+        super(EditRestaurantMealPage, self).__init__(**kwargs)
+        self.store = JsonStore("database.json")
+
+    def on_enter(self):
+        self.dish_name = self.ids.dish_name.text
+
+    def get_meal_types(self, _, value, meal_type):
+        if value:
+            self.meal_types.append(meal_type)
+        elif meal_type in self.meal_types:
+            self.meal_types.remove(meal_type)
+
+    def save_changes(self):
+        if self.dish_name != self.ids.dish_name.text:
+            pass
+        self.store.put(self.ids.dish_name.text,
+                       meal_type=self.meal_types,
+                       restaurant_name=self.ids.restaurant_name.text,
+                       restaurant_number=self.ids.restaurant_number.text,
+                       delivery_links=self.ids.delivery_links.text)
+        self.meal_types = []
+        global DATABASE_CHANGED
+        DATABASE_CHANGED = True
 
 
 class EditHomeMadeMealPage(Screen):
-    pass
+    meal_types = []
+
+    def __init__(self, **kwargs):
+        super(EditHomeMadeMealPage, self).__init__(**kwargs)
+        self.store = JsonStore("database.json")
+
+    def on_enter(self):
+        self.dish_name = self.ids.dish_name.text
+
+    def get_meal_types(self, _, value, meal_type):
+        print(meal_type, value)
+        print("1", self.meal_types)
+        if value:
+            self.meal_types.append(meal_type)
+        elif meal_type in self.meal_types:
+            self.meal_types.remove(meal_type)
+        print("2", self.meal_types)
+
+    def save_changes(self):
+        if self.dish_name != self.ids.dish_name.text:
+            pass
+        self.store.put(self.ids.dish_name.text,
+                       meal_type=self.meal_types,
+                       ingredients=self.ids.ingredients.text,
+                       recipe=self.ids.recipe.text)
+        self.meal_types = []
+        print("3", self.meal_types)
+        global DATABASE_CHANGED
+        DATABASE_CHANGED = True
 
 
 class SuggestionPage(Screen):
