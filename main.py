@@ -10,6 +10,7 @@ from kivy.uix.label import Label
 from functools import partial
 from random import choice
 
+STORE = JsonStore("database.json")
 DATABASE_CHANGED = True
 MEALS = []
 
@@ -24,22 +25,20 @@ class MealTypeSelectionPage(Screen):
 
 class AddRestaurantMealPage(Screen):
 
-    def __init__(self, **kwargs):
-        super(AddRestaurantMealPage, self).__init__(**kwargs)
-        self.store = JsonStore("database.json")
-
     def add_meal(self):
+        global STORE
+
         self.meal_types = []
         self.meal_ids = ["Breakfast", "Lunch", "Dinner", "Snacks"]
         for meal_id in self.meal_ids:
             if self.ids[meal_id].active:
                 self.meal_types.append(meal_id)
 
-        self.store.put(self.ids.dish_name.text,
-                       meal_type=self.meal_types,
-                       restaurant_name=self.ids.restaurant_name.text,
-                       restaurant_number=self.ids.restaurant_number.text,
-                       delivery_links=self.ids.delivery_links.text)
+        STORE.put(self.ids.dish_name.text,
+                  meal_type=self.meal_types,
+                  restaurant_name=self.ids.restaurant_name.text,
+                  restaurant_number=self.ids.restaurant_number.text,
+                  delivery_links=self.ids.delivery_links.text)
 
         for meal_id in self.meal_ids:
             self.ids[meal_id].active = False
@@ -53,21 +52,19 @@ class AddRestaurantMealPage(Screen):
 
 class AddHomeMadeMealPage(Screen):
 
-    def __init__(self, **kwargs):
-        super(AddHomeMadeMealPage, self).__init__(**kwargs)
-        self.store = JsonStore("database.json")
-
     def add_meal(self):
+        global STORE
+
         self.meal_types = []
         self.meal_ids = ["Breakfast", "Lunch", "Dinner", "Snacks"]
         for meal_id in self.meal_ids:
             if self.ids[meal_id].active:
                 self.meal_types.append(meal_id)
 
-        self.store.put(self.ids.dish_name.text,
-                       meal_type=self.meal_types,
-                       ingredients=self.ids.ingredients.text,
-                       recipe=self.ids.recipe.text)
+        STORE.put(self.ids.dish_name.text,
+                  meal_type=self.meal_types,
+                  ingredients=self.ids.ingredients.text,
+                  recipe=self.ids.recipe.text)
 
         for meal_id in self.meal_ids:
             self.ids[meal_id].active = False
@@ -79,19 +76,17 @@ class AddHomeMadeMealPage(Screen):
 
 
 class ViewMealsPage(Screen):
-    def __init__(self, **kwargs):
-        super(ViewMealsPage, self).__init__(**kwargs)
 
     def on_enter(self):
-        global DATABASE_CHANGED, MEALS
+        global DATABASE_CHANGED, MEALS, STORE
         if DATABASE_CHANGED:
             DATABASE_CHANGED = False
-            self.store = JsonStore("database.json")
-            meals = self.store.keys()
+            STORE = JsonStore("database.json")
+            meals = STORE.keys()
             for meal in meals:
                 if meal not in MEALS:
                     MEALS.append(meal)
-                    if "ingredients" in self.store[meal].keys():
+                    if "ingredients" in STORE[meal].keys():
                         function = partial(self.edit_home_made_meal, meal)
                     else:
                         function = partial(self.edit_restaurant_meal, meal)
@@ -104,7 +99,7 @@ class ViewMealsPage(Screen):
 
     def edit_restaurant_meal(self, meal, _):
         Screen = self.manager.get_screen("EditRestaurantMealPage")
-        meal_type = self.store[meal]["meal_type"]
+        meal_type = STORE[meal]["meal_type"]
         Screen.ids.breakfast.active = False
         Screen.ids.lunch.active = False
         Screen.ids.dinner.active = False
@@ -118,15 +113,15 @@ class ViewMealsPage(Screen):
         if "Snacks" in meal_type:
             Screen.ids.snacks.active = True
         Screen.ids.dish_name.text = meal
-        Screen.ids.restaurant_name.text = self.store[meal]["restaurant_name"]
-        Screen.ids.restaurant_number.text = self.store[meal]["restaurant_number"]
-        Screen.ids.delivery_links.text = self.store[meal]["delivery_links"]
+        Screen.ids.restaurant_name.text = STORE[meal]["restaurant_name"]
+        Screen.ids.restaurant_number.text = STORE[meal]["restaurant_number"]
+        Screen.ids.delivery_links.text = STORE[meal]["delivery_links"]
         self.manager.current = "EditRestaurantMealPage"
         self.manager.transition.direction = "left"
 
     def edit_home_made_meal(self, meal, _):
         Screen = self.manager.get_screen("EditHomeMadeMealPage")
-        meal_type = self.store[meal]["meal_type"]
+        meal_type = STORE[meal]["meal_type"]
         Screen.ids.breakfast.active = False
         Screen.ids.lunch.active = False
         Screen.ids.dinner.active = False
@@ -140,13 +135,16 @@ class ViewMealsPage(Screen):
         if "Snacks" in meal_type:
             Screen.ids.snacks.active = True
         Screen.ids.dish_name.text = meal
-        Screen.ids.ingredients.text = self.store[meal]["ingredients"]
-        Screen.ids.recipe.text = self.store[meal]["recipe"]
+        Screen.ids.ingredients.text = STORE[meal]["ingredients"]
+        Screen.ids.recipe.text = STORE[meal]["recipe"]
         self.manager.current = "EditHomeMadeMealPage"
         self.manager.transition.direction = "left"
 
     def delete_meal(self, id, instance):
-        self.store.delete(id)
+        global DATABASE_CHANGED, STORE
+
+        STORE.delete(id)
+        DATABASE_CHANGED = True
         MEALS.remove(id)
         self.ids.grid.remove_widget(self.ids[id])
         self.ids.grid.remove_widget(instance)
@@ -155,10 +153,6 @@ class ViewMealsPage(Screen):
 class EditRestaurantMealPage(Screen):
     meal_types = []
 
-    def __init__(self, **kwargs):
-        super(EditRestaurantMealPage, self).__init__(**kwargs)
-        self.store = JsonStore("database.json")
-
     def on_enter(self):
         self.dish_name = self.ids.dish_name.text
 
@@ -169,47 +163,40 @@ class EditRestaurantMealPage(Screen):
             self.meal_types.remove(meal_type)
 
     def save_changes(self):
+        global DATABASE_CHANGED, STORE
+
         if self.dish_name != self.ids.dish_name.text:
             pass
-        self.store.put(self.ids.dish_name.text,
-                       meal_type=self.meal_types,
-                       restaurant_name=self.ids.restaurant_name.text,
-                       restaurant_number=self.ids.restaurant_number.text,
-                       delivery_links=self.ids.delivery_links.text)
+        STORE.put(self.ids.dish_name.text,
+                  meal_type=self.meal_types,
+                  restaurant_name=self.ids.restaurant_name.text,
+                  restaurant_number=self.ids.restaurant_number.text,
+                  delivery_links=self.ids.delivery_links.text)
         self.meal_types = []
-        global DATABASE_CHANGED
         DATABASE_CHANGED = True
 
 
 class EditHomeMadeMealPage(Screen):
     meal_types = []
 
-    def __init__(self, **kwargs):
-        super(EditHomeMadeMealPage, self).__init__(**kwargs)
-        self.store = JsonStore("database.json")
-
     def on_enter(self):
         self.dish_name = self.ids.dish_name.text
 
     def get_meal_types(self, _, value, meal_type):
-        print(meal_type, value)
-        print("1", self.meal_types)
         if value:
             self.meal_types.append(meal_type)
         elif meal_type in self.meal_types:
             self.meal_types.remove(meal_type)
-        print("2", self.meal_types)
 
     def save_changes(self):
+        global DATABASE_CHANGED, STORE
         if self.dish_name != self.ids.dish_name.text:
             pass
-        self.store.put(self.ids.dish_name.text,
-                       meal_type=self.meal_types,
-                       ingredients=self.ids.ingredients.text,
-                       recipe=self.ids.recipe.text)
+        STORE.put(self.ids.dish_name.text,
+                  meal_type=self.meal_types,
+                  ingredients=self.ids.ingredients.text,
+                  recipe=self.ids.recipe.text)
         self.meal_types = []
-        print("3", self.meal_types)
-        global DATABASE_CHANGED
         DATABASE_CHANGED = True
 
 
@@ -220,30 +207,30 @@ class SuggestionPage(Screen):
 class ResultPage(Screen):
 
     def on_enter(self):
-        self.store = JsonStore("database.json")
+        global STORE
         self.meal_type = self.manager.get_screen("SuggestionPage").ids.meal_type.text
         self.meal_from = self.manager.get_screen("SuggestionPage").ids.meal_from.text
         self.options = []
-        for meal in self.store:
-            if self.meal_type in self.store[meal]["meal_type"]:
-                if self.meal_from == "Home-made" and ("ingredients" in self.store[meal].keys()):
+        for meal in STORE:
+            if self.meal_type in STORE[meal]["meal_type"]:
+                if self.meal_from == "Home-made" and ("ingredients" in STORE[meal].keys()):
                     self.options.append(meal)
-                elif self.meal_from == "Restaurant" and ("restaurant_name" in self.store[meal].keys()):
+                elif self.meal_from == "Restaurant" and ("restaurant_name" in STORE[meal].keys()):
                     self.options.append(meal)
                 elif self.meal_from == "Mix":
                     self.options.append(meal)
         self.meal = choice(self.options)
         self.ids.dish_name.text = self.meal
         self.ids.meal_details.clear_widgets()
-        if "ingredients" in self.store[self.meal].keys():  # Home-made
+        if "ingredients" in STORE[self.meal].keys():  # Home-made
             self.ingredients_label = Label(text="Ingredients:", font_size=25, text_size=(self.width, None),
                                            halign="left", size_hint_y=None, height="30dp")
-            self.ingredients = Label(text=self.store[self.meal]["ingredients"], size_hint_y=None,
+            self.ingredients = Label(text=STORE[self.meal]["ingredients"], size_hint_y=None,
                                      text_size=(self.width, None), halign="left")
             self.ingredients.bind(height=self.ingredients.setter("texture_size[1]"))
             self.recipe_label = Label(text="Recipe:", font_size=25, text_size=(self.width, None), halign="left",
                                       size_hint_y=None, height="30dp")
-            self.recipe = Label(text=self.store[self.meal]["recipe"], size_hint_y=None, text_size=(self.width, None),
+            self.recipe = Label(text=STORE[self.meal]["recipe"], size_hint_y=None, text_size=(self.width, None),
                                 halign="left")
             self.recipe.bind(height=self.recipe.setter("texture_size[1]"))
             self.ids.meal_details.add_widget(self.ingredients_label)
@@ -254,17 +241,17 @@ class ResultPage(Screen):
         else:  # Restaurant
             self.restaurant_name_label = Label(text="Restaurant Name:", font_size=25, text_size=(self.width, None),
                                                halign="left", size_hint_y=None, height="30dp")
-            self.restaurant_name = Label(text=self.store[self.meal]["restaurant_name"], size_hint_y=None,
+            self.restaurant_name = Label(text=STORE[self.meal]["restaurant_name"], size_hint_y=None,
                                          text_size=(self.width, None), halign="left")
             self.restaurant_name.bind(height=self.restaurant_name.setter("texture_size[1]"))
             self.restaurant_number_label = Label(text="Restaurant Number:", font_size=25, text_size=(self.width, None),
                                                  halign="left", size_hint_y=None, height="30dp")
-            self.restaurant_number = Label(text=self.store[self.meal]["restaurant_number"], size_hint_y=None,
+            self.restaurant_number = Label(text=STORE[self.meal]["restaurant_number"], size_hint_y=None,
                                            text_size=(self.width, None), halign="left")
             self.restaurant_number.bind(height=self.restaurant_number.setter("texture_size[1]"))
             self.delivery_links_label = Label(text="Order From:", font_size=25, text_size=(self.width, None),
                                               halign="left", size_hint_y=None, height="30dp")
-            self.delivery_links = Label(text=self.store[self.meal]["delivery_links"], size_hint_y=None,
+            self.delivery_links = Label(text=STORE[self.meal]["delivery_links"], size_hint_y=None,
                                         text_size=(self.width, None), halign="left")
             self.delivery_links.bind(height=self.delivery_links.setter("texture_size[1]"))
             self.ids.meal_details.add_widget(self.restaurant_name_label)
