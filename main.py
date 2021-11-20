@@ -117,8 +117,12 @@ class ViewMealsPage(Screen):
         if DATABASE_CHANGED:
             DATABASE_CHANGED = False
             meals = STORE.keys()
-            if meals == []:
-                self.ids.grid.add_widget(Label(text="No meals to display", size_hint=(1, None)))
+            if meals == [] and "no_meal" not in self.ids:
+                self.label = Label(text="No meals to display", size_hint=(1, None))
+                self.ids["no_meal"] = self.label
+                self.ids.grid.add_widget(self.label)
+            elif "no_meal" in self.ids:
+                self.ids.grid.remove_widget(self.ids["no_meal"])
             for meal in meals:
                 if meal not in MEALS:
                     MEALS.append(meal)
@@ -170,6 +174,10 @@ class ViewMealsPage(Screen):
         MEALS.remove(id)
         self.ids.grid.remove_widget(self.ids[id])
         self.ids.grid.remove_widget(instance)
+        if len(MEALS) == 0:
+            self.label = Label(text="No meals to display", size_hint=(1, None))
+            self.ids["no_meal"] = self.label
+            self.ids.grid.add_widget(self.label)
 
 
 class EditRestaurantMealPage(Screen):
@@ -299,12 +307,12 @@ class ResultPage(Screen):
         self.ids.dish_name.text = self.meal
         self.ids.meal_details.clear_widgets()
         if "ingredients" in STORE[self.meal].keys():  # Home-made
-            self.ingredients_label = Label(text="Ingredients:", font_size=25, text_size=(self.width, None),
+            self.ingredients_label = Label(text="Ingredients:", font_size="25dp", text_size=(self.width, None),
                                            halign="left", size_hint_y=None, height="30dp")
             self.ingredients = Label(text=STORE[self.meal]["ingredients"], size_hint_y=None,
                                      text_size=(self.width, None), halign="left")
             self.ingredients.bind(height=self.ingredients.setter("texture_size[1]"))
-            self.recipe_label = Label(text="Recipe:", font_size=25, text_size=(self.width, None), halign="left",
+            self.recipe_label = Label(text="Recipe:", font_size="25dp", text_size=(self.width, None), halign="left",
                                       size_hint_y=None, height="30dp")
             self.recipe = Label(text=STORE[self.meal]["recipe"], size_hint_y=None, text_size=(self.width, None),
                                 halign="left")
@@ -315,12 +323,12 @@ class ResultPage(Screen):
             self.ids.meal_details.add_widget(self.recipe_label)
             self.ids.meal_details.add_widget(self.recipe)
         else:  # Restaurant
-            self.restaurant_name_label = Label(text="Restaurant Name:", font_size=25, text_size=(self.width, None),
+            self.restaurant_name_label = Label(text="Restaurant Name:", font_size="25dp", text_size=(self.width, None),
                                                halign="left", size_hint_y=None, height="30dp")
             self.restaurant_name = Label(text=STORE[self.meal]["restaurant_name"], size_hint_y=None,
                                          text_size=(self.width, None), halign="left")
             self.restaurant_name.bind(height=self.restaurant_name.setter("texture_size[1]"))
-            self.restaurant_number_label = Label(text="Restaurant Number:", font_size=25, text_size=(self.width, None),
+            self.restaurant_number_label = Label(text="Restaurant Number:", font_size="25dp", text_size=(self.width, None),
                                                  halign="left", size_hint_y=None, height="30dp")
             self.restaurant_number = Label(text=STORE[self.meal]["restaurant_number"], size_hint_y=None,
                                            text_size=(self.width, None), halign="left")
