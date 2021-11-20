@@ -1,15 +1,17 @@
 """An App that helps you decide what dish to have for your meal"""
 
-from kivy.app import App
+from kivymd.app import MDApp
 from kivy.lang import Builder
 from kivy.storage.jsonstore import JsonStore
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
 from kivy.uix.button import Button
 from kivy.uix.label import Label
+from kivymd.toast import toast
 from functools import partial
 from random import choice
 
+Window.softinput_mode = "below_target"
 STORE = JsonStore("database.json")
 DATABASE_CHANGED = True
 MEALS = []
@@ -26,10 +28,25 @@ class MealTypeSelectionPage(Screen):
 class AddRestaurantMealPage(Screen):
 
     def add_meal(self):
-        global STORE
+        global DATABASE_CHANGED, STORE
+        self.meal_ids = ["Breakfast", "Lunch", "Dinner", "Snacks"]
+
+        if not (self.ids[self.meal_ids[0]].active or self.ids[self.meal_ids[1]].active or
+                self.ids[self.meal_ids[2]].active or self.ids[self.meal_ids[3]].active):
+            toast("Choose at least one meal type")
+            return
+        if self.ids.dish_name.text == "":
+            toast("Dish name cannot be blank")
+            return
+        if self.ids.restaurant_name.text == "":
+            toast("Restaurant name cannot be blank")
+            return
+        if self.ids.restaurant_number.text == "":
+            self.ids.restaurant_number.text = "No number provided"
+        if self.ids.delivery_links.text == "":
+            self.ids.delivery_links.text = "No delivery links provided"
 
         self.meal_types = []
-        self.meal_ids = ["Breakfast", "Lunch", "Dinner", "Snacks"]
         for meal_id in self.meal_ids:
             if self.ids[meal_id].active:
                 self.meal_types.append(meal_id)
@@ -46,17 +63,35 @@ class AddRestaurantMealPage(Screen):
         self.ids.restaurant_name.text = ""
         self.ids.restaurant_number.text = ""
         self.ids.delivery_links.text = ""
-        global DATABASE_CHANGED
+
         DATABASE_CHANGED = True
+
+        self.manager.current = "HomePage"
+        self.manager.transition.direction = "right"
 
 
 class AddHomeMadeMealPage(Screen):
 
     def add_meal(self):
-        global STORE
+        global DATABASE_CHANGED, STORE
+        self.meal_ids = ["Breakfast", "Lunch", "Dinner", "Snacks"]
+
+        if not (self.ids[self.meal_ids[0]].active or self.ids[self.meal_ids[1]].active or
+                self.ids[self.meal_ids[2]].active or self.ids[self.meal_ids[3]].active):
+            toast("Choose at least one meal type")
+            return
+        if self.ids.dish_name.text == "":
+            toast("Dish name cannot be blank")
+            return
+        if self.ids.ingredients.text == "":
+            toast("Ingredients name cannot be blank")
+            return
+        if self.ids.recipe.text == "":
+            toast("Recipe name cannot be blank")
+            return
+
 
         self.meal_types = []
-        self.meal_ids = ["Breakfast", "Lunch", "Dinner", "Snacks"]
         for meal_id in self.meal_ids:
             if self.ids[meal_id].active:
                 self.meal_types.append(meal_id)
@@ -71,7 +106,7 @@ class AddHomeMadeMealPage(Screen):
         self.ids.dish_name.text = ""
         self.ids.ingredients.text = ""
         self.ids.recipe.text = ""
-        global DATABASE_CHANGED
+
         DATABASE_CHANGED = True
 
 
@@ -81,8 +116,9 @@ class ViewMealsPage(Screen):
         global DATABASE_CHANGED, MEALS, STORE
         if DATABASE_CHANGED:
             DATABASE_CHANGED = False
-            STORE = JsonStore("database.json")
             meals = STORE.keys()
+            if meals == []:
+                self.ids.grid.add_widget(Label(text="No meals to display", size_hint=(1, None)))
             for meal in meals:
                 if meal not in MEALS:
                     MEALS.append(meal)
@@ -100,18 +136,11 @@ class ViewMealsPage(Screen):
     def edit_restaurant_meal(self, meal, _):
         Screen = self.manager.get_screen("EditRestaurantMealPage")
         meal_type = STORE[meal]["meal_type"]
-        Screen.ids.breakfast.active = False
-        Screen.ids.lunch.active = False
-        Screen.ids.dinner.active = False
-        Screen.ids.snacks.active = False
-        if "Breakfast" in meal_type:
-            Screen.ids.breakfast.active = True
-        if "Lunch" in meal_type:
-            Screen.ids.lunch.active = True
-        if "Dinner" in meal_type:
-            Screen.ids.dinner.active = True
-        if "Snacks" in meal_type:
-            Screen.ids.snacks.active = True
+        self.meal_ids = ["Breakfast", "Lunch", "Dinner", "Snacks"]
+        for meal_id in self.meal_ids:
+            Screen.ids[meal_id].active = False
+            if meal_id in meal_type:
+                Screen.ids[meal_id].active = True
         Screen.ids.dish_name.text = meal
         Screen.ids.restaurant_name.text = STORE[meal]["restaurant_name"]
         Screen.ids.restaurant_number.text = STORE[meal]["restaurant_number"]
@@ -122,18 +151,11 @@ class ViewMealsPage(Screen):
     def edit_home_made_meal(self, meal, _):
         Screen = self.manager.get_screen("EditHomeMadeMealPage")
         meal_type = STORE[meal]["meal_type"]
-        Screen.ids.breakfast.active = False
-        Screen.ids.lunch.active = False
-        Screen.ids.dinner.active = False
-        Screen.ids.snacks.active = False
-        if "Breakfast" in meal_type:
-            Screen.ids.breakfast.active = True
-        if "Lunch" in meal_type:
-            Screen.ids.lunch.active = True
-        if "Dinner" in meal_type:
-            Screen.ids.dinner.active = True
-        if "Snacks" in meal_type:
-            Screen.ids.snacks.active = True
+        self.meal_ids = ["Breakfast", "Lunch", "Dinner", "Snacks"]
+        for meal_id in self.meal_ids:
+            Screen.ids[meal_id].active = False
+            if meal_id in meal_type:
+                Screen.ids[meal_id].active = True
         Screen.ids.dish_name.text = meal
         Screen.ids.ingredients.text = STORE[meal]["ingredients"]
         Screen.ids.recipe.text = STORE[meal]["recipe"]
@@ -164,9 +186,25 @@ class EditRestaurantMealPage(Screen):
 
     def save_changes(self):
         global DATABASE_CHANGED, STORE
+        self.meal_ids = ["Breakfast", "Lunch", "Dinner", "Snacks"]
+
+        if not (self.ids[self.meal_ids[0]].active or self.ids[self.meal_ids[1]].active or
+                self.ids[self.meal_ids[2]].active or self.ids[self.meal_ids[3]].active):
+            toast("Choose at least one meal type")
+            return
+        if self.ids.dish_name.text == "":
+            toast("Dish name cannot be blank")
+            return
+        if self.ids.restaurant_name.text == "":
+            toast("Restaurant name cannot be blank")
+            return
+        if self.ids.restaurant_number.text == "":
+            self.ids.restaurant_number.text = "No number provided"
+        if self.ids.delivery_links.text == "":
+            self.ids.delivery_links.text = "No delivery links provided"
 
         if self.dish_name != self.ids.dish_name.text:
-            pass
+            pass  # Dish name change to be handled
         STORE.put(self.ids.dish_name.text,
                   meal_type=self.meal_types,
                   restaurant_name=self.ids.restaurant_name.text,
@@ -174,6 +212,8 @@ class EditRestaurantMealPage(Screen):
                   delivery_links=self.ids.delivery_links.text)
         self.meal_types = []
         DATABASE_CHANGED = True
+        self.manager.current = "ViewMealsPage"
+        self.manager.transition.direction = "right"
 
 
 class EditHomeMadeMealPage(Screen):
@@ -190,18 +230,54 @@ class EditHomeMadeMealPage(Screen):
 
     def save_changes(self):
         global DATABASE_CHANGED, STORE
+        self.meal_ids = ["Breakfast", "Lunch", "Dinner", "Snacks"]
+
+        if not (self.ids[self.meal_ids[0]].active or self.ids[self.meal_ids[1]].active or
+                self.ids[self.meal_ids[2]].active or self.ids[self.meal_ids[3]].active):
+            toast("Choose at least one meal type")
+            return
+        if self.ids.dish_name.text == "":
+            toast("Dish name cannot be blank")
+            return
+        if self.ids.ingredients.text == "":
+            toast("Ingredients name cannot be blank")
+            return
+        if self.ids.recipe.text == "":
+            toast("Recipe name cannot be blank")
+            return
+
         if self.dish_name != self.ids.dish_name.text:
-            pass
+            pass  # Dish name change to be handled
         STORE.put(self.ids.dish_name.text,
                   meal_type=self.meal_types,
                   ingredients=self.ids.ingredients.text,
                   recipe=self.ids.recipe.text)
         self.meal_types = []
         DATABASE_CHANGED = True
+        self.manager.current = "ViewMealsPage"
+        self.manager.transition.direction = "right"
 
 
 class SuggestionPage(Screen):
-    pass
+
+    def result(self):
+        global STORE
+        self.meal_type = self.manager.get_screen("SuggestionPage").ids.meal_type.text
+        self.meal_from = self.manager.get_screen("SuggestionPage").ids.meal_from.text
+        self.options = []
+        for meal in STORE:
+            if self.meal_type in STORE[meal]["meal_type"]:
+                if self.meal_from == "Home-made" and ("ingredients" in STORE[meal].keys()):
+                    self.options.append(meal)
+                elif self.meal_from == "Restaurant" and ("restaurant_name" in STORE[meal].keys()):
+                    self.options.append(meal)
+                elif self.meal_from == "Mix":
+                    self.options.append(meal)
+        if self.options == []:
+            toast("No meals for this category")
+        else:
+            self.manager.current = "ResultPage"
+            self.manager.transition.direction = "left"
 
 
 class ResultPage(Screen):
@@ -264,6 +340,12 @@ class ResultPage(Screen):
             self.ids.meal_details.add_widget(self.delivery_links)
         self.ids.meal_details.add_widget(Label())
 
+    def change(self):
+        if len(self.options) == 1:
+            toast("Only 1 meal added for this category")
+            return
+        self.on_enter()
+
 
 class WindowManager(ScreenManager):
 
@@ -314,10 +396,11 @@ class WindowManager(ScreenManager):
 # kv = Builder.load_file("mealsuggestion.kv")
 
 
-class MealSuggestionApp(App):
-    pass
-    # def build(self):
-    #     return kv
+class MealSuggestionApp(MDApp):
+
+    def build(self):
+        self.theme_cls.theme_style = "Dark"
+        return None
 
 
 if __name__ == "__main__":

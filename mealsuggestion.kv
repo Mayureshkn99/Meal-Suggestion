@@ -138,8 +138,6 @@ WindowManager:
             height: "50dp"
             on_release:
                 root.add_meal()
-                app.root.current = "HomePage"
-                root.manager.transition.direction = "right"
 
 
 <AddHomeMadeMealPage>:
@@ -247,16 +245,16 @@ WindowManager:
             BoxLayout:
                 orientation: "vertical"
                 CheckBox:
-                    id: breakfast
+                    id: Breakfast
                     on_active: root.get_meal_types(self, self.active, "Breakfast")
                 CheckBox:
-                    id: lunch
+                    id: Lunch
                     on_active: root.get_meal_types(self, self.active, "Lunch")
                 CheckBox:
-                    id: dinner
+                    id: Dinner
                     on_active: root.get_meal_types(self, self.active, "Dinner")
                 CheckBox:
-                    id: snacks
+                    id: Snacks
                     on_active: root.get_meal_types(self, self.active, "Snacks")
             BoxLayout:
                 orientation: "vertical"
@@ -316,8 +314,6 @@ WindowManager:
             height: "50dp"
             on_release:
                 root.save_changes()
-                app.root.current = "ViewMealsPage"
-                root.manager.transition.direction = "right"
 
 
 <EditHomeMadeMealPage>:
@@ -336,16 +332,16 @@ WindowManager:
             BoxLayout:
                 orientation: "vertical"
                 CheckBox:
-                    id: breakfast
+                    id: Breakfast
                     on_active: root.get_meal_types(self, self.active, "Breakfast")
                 CheckBox:
-                    id: lunch
+                    id: Lunch
                     on_active: root.get_meal_types(self, self.active, "Lunch")
                 CheckBox:
-                    id: dinner
+                    id: Dinner
                     on_active: root.get_meal_types(self, self.active, "Dinner")
                 CheckBox:
-                    id: snacks
+                    id: Snacks
                     on_active: root.get_meal_types(self, self.active, "Snacks")
             BoxLayout:
                 orientation: "vertical"
@@ -392,8 +388,6 @@ WindowManager:
             height: "50dp"
             on_release:
                 root.save_changes()
-                app.root.current = "ViewMealsPage"
-                root.manager.transition.direction = "right"
 
 
 <SuggestionPage>:
@@ -435,8 +429,7 @@ WindowManager:
             size_hint_y: None
             height: "50dp"
             on_release:
-                app.root.current = "ResultPage"
-                root.manager.transition.direction = "left"
+                root.result()
 
 
 <ResultPage>:
@@ -499,4 +492,4 @@ WindowManager:
             size_hint_y: None
             height: "50dp"
             on_release:
-                root.on_enter()
+                root.change()
