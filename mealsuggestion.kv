@@ -223,10 +223,15 @@ WindowManager:
             height: "50dp"
         ScrollView:
             GridLayout:
-                id: grid
-                cols: 2
-                size_hint: 1, None
+                id: outer
+                cols: 1
+                size_hint_y: None
                 height: self.minimum_height
+                GridLayout:
+                    id: grid
+                    cols: 2
+                    size_hint_y: None
+                    height: self.minimum_height
 
 
 <EditRestaurantMealPage>:
@@ -455,6 +460,7 @@ WindowManager:
             BoxLayout:
                 id: meal_details
                 orientation: "vertical"
+                size: root.width, root.height
                 size_hint: 1, None
                 height: self.minimum_height
 #                Label:
@@ -465,7 +471,7 @@ WindowManager:
 #                    size_hint_y: None
 #                    height: "30dp"
 #                Label:
-#                    text: "Eggs\nSalt\nPepper\nMilk"
+#                    text: "Eggs\nSalt\nPepper\nMilk\nEggs\nSalt\nPepper\nEggs\nSalt\nPepper\nEggs\nSalt\nPepper\n"
 #                    size_hint_y: None
 #                    text_size: self.width, None
 #                    height: self.texture_size[1]
@@ -481,7 +487,7 @@ WindowManager:
 #                    size_hint_y: None
 #                    height: "30dp"
 #                Label:
-#                    text: "Beat it\nHeat it\nEat it"
+#                    text: "Beat it\nHeat it\nEat it\nBeat it\nHeat it\nEat itBeat it\nHeat it\nEat itBeat it\nHeat it\nEat it"
 #                    size_hint_y: None
 #                    text_size: self.width, None
 #                    height: self.texture_size[1]

@@ -8,6 +8,8 @@ from kivy.core.window import Window
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivymd.toast import toast
+from kivymd.uix.button import MDFlatButton
+from kivymd.uix.dialog import MDDialog
 from functools import partial
 from random import choice
 
@@ -90,7 +92,6 @@ class AddHomeMadeMealPage(Screen):
             toast("Recipe name cannot be blank")
             return
 
-
         self.meal_types = []
         for meal_id in self.meal_ids:
             if self.ids[meal_id].active:
@@ -120,9 +121,10 @@ class ViewMealsPage(Screen):
             if meals == [] and "no_meal" not in self.ids:
                 self.label = Label(text="No meals to display", size_hint=(1, None))
                 self.ids["no_meal"] = self.label
-                self.ids.grid.add_widget(self.label)
-            elif "no_meal" in self.ids:
-                self.ids.grid.remove_widget(self.ids["no_meal"])
+                self.ids.outer.add_widget(self.label)
+            elif meals != [] and "no_meal" in self.ids:
+                self.ids.outer.remove_widget(self.ids["no_meal"])
+                del self.ids["no_meal"]
             for meal in meals:
                 if meal not in MEALS:
                     MEALS.append(meal)
@@ -134,8 +136,14 @@ class ViewMealsPage(Screen):
                     self.ids[meal] = self.meal
                     self.ids.grid.add_widget(self.meal)
                     self.delete = Button(text="x", size_hint=(0.1, None), height="50dp",
-                                         on_release=partial(self.delete_meal, meal))
+                                         on_release=partial(self.confirm, meal))
+                    self.ids[meal + "_del"] = self.delete
                     self.ids.grid.add_widget(self.delete)
+            if meals != [] and "delete_all" not in self.ids:
+                self.delete_all = Button(text="Delete all meals", size_hint_y=None, height="50dp", background_color=(1, 0, 0, 1),
+                                         on_release=partial(self.confirm, 0))
+                self.ids["delete_all"] = self.delete_all
+                self.ids.outer.add_widget(self.delete_all, index=0)
 
     def edit_restaurant_meal(self, meal, _):
         Screen = self.manager.get_screen("EditRestaurantMealPage")
@@ -166,18 +174,58 @@ class ViewMealsPage(Screen):
         self.manager.current = "EditHomeMadeMealPage"
         self.manager.transition.direction = "left"
 
-    def delete_meal(self, id, instance):
-        global DATABASE_CHANGED, STORE
+    def confirm(self, meal=0, _=0):
+        if meal:
+            delete = self.delete_meal
+        else:
+            delete = self.delete_all_meals
+        self.dialog = MDDialog(
+            text="Are you sure?",
+            buttons=[
+                MDFlatButton(text="Cancel", on_release=self.close_confirm),
+                MDFlatButton(text="Yes", on_release=partial(delete, meal))
+            ]
 
+        )
+        self.dialog.open()
+
+    def close_confirm(self, _):
+        self.dialog.dismiss()
+
+    def delete_meal(self, id, _):
+        global DATABASE_CHANGED, STORE, MEALS
+
+        self.dialog.dismiss()
         STORE.delete(id)
         DATABASE_CHANGED = True
         MEALS.remove(id)
         self.ids.grid.remove_widget(self.ids[id])
-        self.ids.grid.remove_widget(instance)
+        self.ids.grid.remove_widget(self.ids[id + "_del"])
+        del self.ids[id]
+        del self.ids[id+"_del"]
         if len(MEALS) == 0:
+            self.ids.outer.remove_widget(self.ids["delete_all"])
+            del self.ids["delete_all"]
             self.label = Label(text="No meals to display", size_hint=(1, None))
             self.ids["no_meal"] = self.label
-            self.ids.grid.add_widget(self.label)
+            self.ids.outer.add_widget(self.label)
+
+    def delete_all_meals(self, _, foo):
+        global DATABASE_CHANGED, STORE, MEALS
+
+        self.dialog.dismiss()
+        STORE.clear()
+        DATABASE_CHANGED = True
+        for meal in MEALS:
+            del self.ids[meal]
+            del self.ids[meal+"_del"]
+        self.ids.grid.clear_widgets()
+        MEALS = []
+        self.ids.outer.remove_widget(self.ids["delete_all"])
+        del self.ids["delete_all"]
+        self.label = Label(text="No meals to display", size_hint=(1, None))
+        self.ids["no_meal"] = self.label
+        self.ids.outer.add_widget(self.label)
 
 
 class EditRestaurantMealPage(Screen):
