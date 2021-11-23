@@ -140,7 +140,8 @@ class ViewMealsPage(Screen):
                     self.ids[meal + "_del"] = self.delete
                     self.ids.grid.add_widget(self.delete)
             if meals != [] and "delete_all" not in self.ids:
-                self.delete_all = Button(text="Delete all meals", size_hint_y=None, height="50dp", background_color=(1, 0, 0, 1),
+                self.delete_all = Button(text="Delete all meals", size_hint_y=None, height="50dp",
+                                         background_color=(1, 0, 0, 1),
                                          on_release=partial(self.confirm, 0))
                 self.ids["delete_all"] = self.delete_all
                 self.ids.outer.add_widget(self.delete_all, index=0)
@@ -192,17 +193,18 @@ class ViewMealsPage(Screen):
     def close_confirm(self, _):
         self.dialog.dismiss()
 
-    def delete_meal(self, id, _):
+    def delete_meal(self, id, instance):
         global DATABASE_CHANGED, STORE, MEALS
 
-        self.dialog.dismiss()
+        if not isinstance(instance, Screen):
+            self.dialog.dismiss()
         STORE.delete(id)
         DATABASE_CHANGED = True
         MEALS.remove(id)
         self.ids.grid.remove_widget(self.ids[id])
         self.ids.grid.remove_widget(self.ids[id + "_del"])
         del self.ids[id]
-        del self.ids[id+"_del"]
+        del self.ids[id + "_del"]
         if len(MEALS) == 0:
             self.ids.outer.remove_widget(self.ids["delete_all"])
             del self.ids["delete_all"]
@@ -218,7 +220,7 @@ class ViewMealsPage(Screen):
         DATABASE_CHANGED = True
         for meal in MEALS:
             del self.ids[meal]
-            del self.ids[meal+"_del"]
+            del self.ids[meal + "_del"]
         self.ids.grid.clear_widgets()
         MEALS = []
         self.ids.outer.remove_widget(self.ids["delete_all"])
@@ -229,16 +231,9 @@ class ViewMealsPage(Screen):
 
 
 class EditRestaurantMealPage(Screen):
-    meal_types = []
 
     def on_enter(self):
         self.dish_name = self.ids.dish_name.text
-
-    def get_meal_types(self, _, value, meal_type):
-        if value:
-            self.meal_types.append(meal_type)
-        elif meal_type in self.meal_types:
-            self.meal_types.remove(meal_type)
 
     def save_changes(self):
         global DATABASE_CHANGED, STORE
@@ -259,30 +254,30 @@ class EditRestaurantMealPage(Screen):
         if self.ids.delivery_links.text == "":
             self.ids.delivery_links.text = "No delivery links provided"
 
+        self.meal_types = []
+        for meal_id in self.meal_ids:
+            if self.ids[meal_id].active:
+                self.meal_types.append(meal_id)
+
         if self.dish_name != self.ids.dish_name.text:
-            pass  # Dish name change to be handled
+            Screen = self.manager.get_screen("ViewMealsPage")
+            Screen.delete_meal(self.dish_name, self)
+
         STORE.put(self.ids.dish_name.text,
                   meal_type=self.meal_types,
                   restaurant_name=self.ids.restaurant_name.text,
                   restaurant_number=self.ids.restaurant_number.text,
                   delivery_links=self.ids.delivery_links.text)
-        self.meal_types = []
+
         DATABASE_CHANGED = True
         self.manager.current = "ViewMealsPage"
         self.manager.transition.direction = "right"
 
 
 class EditHomeMadeMealPage(Screen):
-    meal_types = []
 
     def on_enter(self):
         self.dish_name = self.ids.dish_name.text
-
-    def get_meal_types(self, _, value, meal_type):
-        if value:
-            self.meal_types.append(meal_type)
-        elif meal_type in self.meal_types:
-            self.meal_types.remove(meal_type)
 
     def save_changes(self):
         global DATABASE_CHANGED, STORE
@@ -302,13 +297,20 @@ class EditHomeMadeMealPage(Screen):
             toast("Recipe name cannot be blank")
             return
 
+        self.meal_types = []
+        for meal_id in self.meal_ids:
+            if self.ids[meal_id].active:
+                self.meal_types.append(meal_id)
+
         if self.dish_name != self.ids.dish_name.text:
-            pass  # Dish name change to be handled
+            Screen = self.manager.get_screen("ViewMealsPage")
+            Screen.delete_meal(self.dish_name, self)
+
         STORE.put(self.ids.dish_name.text,
                   meal_type=self.meal_types,
                   ingredients=self.ids.ingredients.text,
                   recipe=self.ids.recipe.text)
-        self.meal_types = []
+
         DATABASE_CHANGED = True
         self.manager.current = "ViewMealsPage"
         self.manager.transition.direction = "right"
@@ -376,7 +378,8 @@ class ResultPage(Screen):
             self.restaurant_name = Label(text=STORE[self.meal]["restaurant_name"], size_hint_y=None,
                                          text_size=(self.width, None), halign="left")
             self.restaurant_name.bind(height=self.restaurant_name.setter("texture_size[1]"))
-            self.restaurant_number_label = Label(text="Restaurant Number:", font_size="25dp", text_size=(self.width, None),
+            self.restaurant_number_label = Label(text="Restaurant Number:", font_size="25dp",
+                                                 text_size=(self.width, None),
                                                  halign="left", size_hint_y=None, height="30dp")
             self.restaurant_number = Label(text=STORE[self.meal]["restaurant_number"], size_hint_y=None,
                                            text_size=(self.width, None), halign="left")
