@@ -1,7 +1,6 @@
 """An App that helps you decide what dish to have for your meal"""
 
 from kivymd.app import MDApp
-from kivy.lang import Builder
 from kivy.storage.jsonstore import JsonStore
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
@@ -13,11 +12,11 @@ from kivymd.uix.dialog import MDDialog
 from functools import partial
 from random import choice
 
+# Window.size = (350, 650)
 Window.softinput_mode = "below_target"
 STORE = JsonStore("database.json")
 DATABASE_CHANGED = True
 MEALS = []
-
 
 class HomePage(Screen):
     pass
@@ -109,6 +108,9 @@ class AddHomeMadeMealPage(Screen):
         self.ids.recipe.text = ""
 
         DATABASE_CHANGED = True
+
+        self.manager.current = "HomePage"
+        self.manager.transition.direction = "right"
 
 
 class ViewMealsPage(Screen):
@@ -357,47 +359,39 @@ class ResultPage(Screen):
         self.ids.dish_name.text = self.meal
         self.ids.meal_details.clear_widgets()
         if "ingredients" in STORE[self.meal].keys():  # Home-made
-            self.ingredients_label = Label(text="Ingredients:", font_size="25dp", text_size=(self.width, None),
-                                           halign="left", size_hint_y=None, height="30dp")
-            self.ingredients = Label(text=STORE[self.meal]["ingredients"], size_hint_y=None,
-                                     text_size=(self.width, None), halign="left")
-            self.ingredients.bind(height=self.ingredients.setter("texture_size[1]"))
-            self.recipe_label = Label(text="Recipe:", font_size="25dp", text_size=(self.width, None), halign="left",
-                                      size_hint_y=None, height="30dp")
-            self.recipe = Label(text=STORE[self.meal]["recipe"], size_hint_y=None, text_size=(self.width, None),
-                                halign="left")
-            self.recipe.bind(height=self.recipe.setter("texture_size[1]"))
-            self.ids.meal_details.add_widget(self.ingredients_label)
-            self.ids.meal_details.add_widget(self.ingredients)
+            self.ingredients_label = Label(text="Ingredients:", font_size="25dp", size_hint_y=None, padding_y="10dp")
+            self.set_label(self.ingredients_label)
+            self.ingredients = Label(text=STORE[self.meal]["ingredients"], size_hint_y=None)
+            self.set_label(self.ingredients)
             self.ids.meal_details.add_widget(Label(size_hint_y=None, height="30dp"))
-            self.ids.meal_details.add_widget(self.recipe_label)
-            self.ids.meal_details.add_widget(self.recipe)
+            self.recipe_label = Label(text="Recipe:", font_size="25dp", size_hint_y=None, padding_y="10dp")
+            self.set_label(self.recipe_label)
+            self.recipe = Label(text=STORE[self.meal]["recipe"], size_hint_y=None)
+            self.set_label(self.recipe)
         else:  # Restaurant
-            self.restaurant_name_label = Label(text="Restaurant Name:", font_size="25dp", text_size=(self.width, None),
-                                               halign="left", size_hint_y=None, height="30dp")
-            self.restaurant_name = Label(text=STORE[self.meal]["restaurant_name"], size_hint_y=None,
-                                         text_size=(self.width, None), halign="left")
-            self.restaurant_name.bind(height=self.restaurant_name.setter("texture_size[1]"))
-            self.restaurant_number_label = Label(text="Restaurant Number:", font_size="25dp",
-                                                 text_size=(self.width, None),
-                                                 halign="left", size_hint_y=None, height="30dp")
-            self.restaurant_number = Label(text=STORE[self.meal]["restaurant_number"], size_hint_y=None,
-                                           text_size=(self.width, None), halign="left")
-            self.restaurant_number.bind(height=self.restaurant_number.setter("texture_size[1]"))
-            self.delivery_links_label = Label(text="Order From:", font_size=25, text_size=(self.width, None),
-                                              halign="left", size_hint_y=None, height="30dp")
-            self.delivery_links = Label(text=STORE[self.meal]["delivery_links"], size_hint_y=None,
-                                        text_size=(self.width, None), halign="left")
-            self.delivery_links.bind(height=self.delivery_links.setter("texture_size[1]"))
-            self.ids.meal_details.add_widget(self.restaurant_name_label)
-            self.ids.meal_details.add_widget(self.restaurant_name)
+            self.restaurant_name_label = Label(text="Restaurant Name:", font_size="25dp", size_hint_y=None,
+                                               padding_y="10dp")
+            self.set_label(self.restaurant_name_label)
+            self.restaurant_name = Label(text=STORE[self.meal]["restaurant_name"], size_hint_y=None)
+            self.set_label(self.restaurant_name)
             self.ids.meal_details.add_widget(Label(size_hint_y=None, height="30dp"))
-            self.ids.meal_details.add_widget(self.restaurant_number_label)
-            self.ids.meal_details.add_widget(self.restaurant_number)
+            self.restaurant_number_label = Label(text="Restaurant Number:", font_size="25dp", size_hint_y=None,
+                                                 padding_y="10dp")
+            self.set_label(self.restaurant_number_label)
+            self.restaurant_number = Label(text=STORE[self.meal]["restaurant_number"], size_hint_y=None)
+            self.set_label(self.restaurant_number)
+            self.delivery_links_label = Label(text="Order From:", font_size="25dp", size_hint_y=None,
+                                              padding_y="10dp")
             self.ids.meal_details.add_widget(Label(size_hint_y=None, height="30dp"))
-            self.ids.meal_details.add_widget(self.delivery_links_label)
-            self.ids.meal_details.add_widget(self.delivery_links)
+            self.set_label(self.delivery_links_label)
+            self.delivery_links = Label(text=STORE[self.meal]["delivery_links"], size_hint_y=None)
+            self.set_label(self.delivery_links)
         self.ids.meal_details.add_widget(Label())
+
+    def set_label(self, label):
+        label.bind(width=lambda s, w: s.setter('text_size')(s, (w, None)))
+        label.bind(texture_size=label.setter('size'))
+        self.ids.meal_details.add_widget(label)
 
     def change(self):
         if len(self.options) == 1:
