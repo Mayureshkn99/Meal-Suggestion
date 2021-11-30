@@ -46,6 +46,9 @@ class AddRestaurantMealPage(Screen):
             self.ids.restaurant_number.text = "No number provided"
         if self.ids.delivery_links.text == "":
             self.ids.delivery_links.text = "No delivery links provided"
+        if self.ids.dish_name.text in STORE.keys():
+            toast("Dish name already exists")
+            return
 
         self.meal_types = []
         for meal_id in self.meal_ids:
@@ -89,6 +92,9 @@ class AddHomeMadeMealPage(Screen):
             return
         if self.ids.recipe.text == "":
             toast("Recipe name cannot be blank")
+            return
+        if self.ids.dish_name.text in STORE.keys():
+            toast("Dish name already exists")
             return
 
         self.meal_types = []
@@ -262,6 +268,9 @@ class EditRestaurantMealPage(Screen):
                 self.meal_types.append(meal_id)
 
         if self.dish_name != self.ids.dish_name.text:
+            if self.ids.dish_name.text in STORE.keys():
+                toast("Dish name already exists")
+                return
             Screen = self.manager.get_screen("ViewMealsPage")
             Screen.delete_meal(self.dish_name, self)
 
@@ -305,6 +314,9 @@ class EditHomeMadeMealPage(Screen):
                 self.meal_types.append(meal_id)
 
         if self.dish_name != self.ids.dish_name.text:
+            if self.ids.dish_name.text in STORE.keys():
+                toast("Dish name already exists")
+                return
             Screen = self.manager.get_screen("ViewMealsPage")
             Screen.delete_meal(self.dish_name, self)
 
