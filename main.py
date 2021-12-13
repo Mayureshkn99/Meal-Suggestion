@@ -2,7 +2,7 @@
 
 from kivymd.app import MDApp
 from kivy.storage.jsonstore import JsonStore
-from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.screenmanager import ScreenManager
 from kivy.core.window import Window
 from kivy.uix.button import Button
 from kivy.uix.label import Label
@@ -11,22 +11,23 @@ from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
 from functools import partial
 from random import choice
+from kivymd.uix.screen import MDScreen
 
-# Window.size = (350, 650)
+Window.size = (350, 650)
 Window.softinput_mode = "below_target"
 STORE = JsonStore("database.json")
 DATABASE_CHANGED = True
 MEALS = []
 
-class HomePage(Screen):
+class HomePage(MDScreen):
     pass
 
 
-class MealTypeSelectionPage(Screen):
+class MealTypeSelectionPage(MDScreen):
     pass
 
 
-class AddRestaurantMealPage(Screen):
+class AddRestaurantMealPage(MDScreen):
 
     def add_meal(self):
         global DATABASE_CHANGED, STORE
@@ -74,7 +75,7 @@ class AddRestaurantMealPage(Screen):
         self.manager.transition.direction = "right"
 
 
-class AddHomeMadeMealPage(Screen):
+class AddHomeMadeMealPage(MDScreen):
 
     def add_meal(self):
         global DATABASE_CHANGED, STORE
@@ -119,7 +120,7 @@ class AddHomeMadeMealPage(Screen):
         self.manager.transition.direction = "right"
 
 
-class ViewMealsPage(Screen):
+class ViewMealsPage(MDScreen):
 
     def on_enter(self):
         global DATABASE_CHANGED, MEALS, STORE
@@ -204,7 +205,7 @@ class ViewMealsPage(Screen):
     def delete_meal(self, id, instance):
         global DATABASE_CHANGED, STORE, MEALS
 
-        if not isinstance(instance, Screen):
+        if not isinstance(instance, MDScreen):
             self.dialog.dismiss()
         STORE.delete(id)
         DATABASE_CHANGED = True
@@ -238,7 +239,7 @@ class ViewMealsPage(Screen):
         self.ids.outer.add_widget(self.label)
 
 
-class EditRestaurantMealPage(Screen):
+class EditRestaurantMealPage(MDScreen):
 
     def on_enter(self):
         self.dish_name = self.ids.dish_name.text
@@ -285,7 +286,7 @@ class EditRestaurantMealPage(Screen):
         self.manager.transition.direction = "right"
 
 
-class EditHomeMadeMealPage(Screen):
+class EditHomeMadeMealPage(MDScreen):
 
     def on_enter(self):
         self.dish_name = self.ids.dish_name.text
@@ -330,7 +331,7 @@ class EditHomeMadeMealPage(Screen):
         self.manager.transition.direction = "right"
 
 
-class SuggestionPage(Screen):
+class SuggestionPage(MDScreen):
 
     def result(self):
         global STORE
@@ -352,7 +353,7 @@ class SuggestionPage(Screen):
             self.manager.transition.direction = "left"
 
 
-class ResultPage(Screen):
+class ResultPage(MDScreen):
 
     def on_enter(self):
         global STORE
@@ -465,6 +466,7 @@ class MealSuggestionApp(MDApp):
 
     def build(self):
         self.theme_cls.theme_style = "Dark"
+        self.theme_cls.primary_palette = "Orange"
         return None
 
 

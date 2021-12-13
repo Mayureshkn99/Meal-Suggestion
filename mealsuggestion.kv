@@ -9,28 +9,30 @@ WindowManager:
     SuggestionPage:
     ResultPage:
 
-
 <HomePage>:
     name: "HomePage"
     BoxLayout:
         size: root.width, root.height
         orientation: "vertical"
-        Label:
-            text: "Meal Suggestion"
-            size_hint_y: None
-            height: "50dp"
-        Button:
+        spacing: 20
+        MDToolbar:
+            title:'Su-gest'
+            opposite_colors: True
+        MDRaisedButton:
             text: "Add Meal"
+            size_hint: 1,1
             on_release:
                 app.root.current = "MealTypeSelectionPage"
                 root.manager.transition.direction = "left"
-        Button:
+        MDRaisedButton:
             text: "View Meal"
+            size_hint: 1,1
             on_release:
                 app.root.current = "ViewMealsPage"
                 root.manager.transition.direction = "left"
-        Button:
+        MDRaisedButton:
             text: "Suggest Meal"
+            size_hint: 1,1
             on_release:
                 app.root.current = "SuggestionPage"
                 root.manager.transition.direction = "left"
@@ -41,10 +43,9 @@ WindowManager:
     BoxLayout:
         size: root.width, root.height
         orientation: "vertical"
-        Label:
-            text: "Meal Suggestion"
-            size_hint_y: None
-            height: "50dp"
+        MDToolbar:
+            title:'Su-gest'
+            md_bg_color: 237/255,118/255,33/255,1
         Button:
             text: "Restaurant"
             on_release:
@@ -62,10 +63,9 @@ WindowManager:
     BoxLayout:
         size: root.width, root.height
         orientation: "vertical"
-        Label:
-            text: "Meal Suggestion"
-            size_hint_y: None
-            height: "50dp"
+        MDToolbar:
+            title:'Su-gest'
+            md_bg_color: 237/255,118/255,33/255,1
         GridLayout:
             cols: 3
             Label:
@@ -147,10 +147,9 @@ WindowManager:
     BoxLayout:
         size: root.width, root.height
         orientation: "vertical"
-        Label:
-            text: "Meal Suggestion"
-            size_hint_y: None
-            height: "50dp"
+        MDToolbar:
+            title:'Su-gest'
+            md_bg_color: 237/255,118/255,33/255,1
         GridLayout:
             cols: 3
             Label:
@@ -219,10 +218,9 @@ WindowManager:
     BoxLayout:
         size: root.width, root.height
         orientation: "vertical"
-        Label:
-            text: "Meal Suggestion"
-            size_hint_y: None
-            height: "50dp"
+        MDToolbar:
+            title:'Su-gest'
+            md_bg_color: 237/255,118/255,33/255,1
         ScrollView:
             GridLayout:
                 id: outer
@@ -241,10 +239,9 @@ WindowManager:
     BoxLayout:
         size: root.width, root.height
         orientation: "vertical"
-        Label:
-            text: "Meal Suggestion"
-            size_hint_y: None
-            height: "50dp"
+        MDToolbar:
+            title:'Su-gest'
+            md_bg_color: 237/255,118/255,33/255,1
         GridLayout:
             cols: 3
             Label:
@@ -326,10 +323,9 @@ WindowManager:
     BoxLayout:
         size: root.width, root.height
         orientation: "vertical"
-        Label:
-            text: "Meal Suggestion"
-            size_hint_y: None
-            height: "50dp"
+        MDToolbar:
+            title:'Su-gest'
+            md_bg_color: 237/255,118/255,33/255,1
         GridLayout:
             cols: 3
             Label:
@@ -398,10 +394,9 @@ WindowManager:
     BoxLayout:
         size: root.width, root.height
         orientation: "vertical"
-        Label:
-            text: "Meal Suggestion"
-            size_hint_y: None
-            height: "50dp"
+        MDToolbar:
+            title:'Su-gest'
+            md_bg_color: 237/255,118/255,33/255,1
         GridLayout:
             cols: 2
             size_hint_y: None
@@ -440,10 +435,9 @@ WindowManager:
     BoxLayout:
         size: root.width, root.height
         orientation: "vertical"
-        Label:
-            text: "Meal Suggestion"
-            size_hint_y: None
-            height: "50dp"
+        MDToolbar:
+            title:'Su-gest'
+            md_bg_color: 237/255,118/255,33/255,1
         GridLayout:
             cols: 2
             size_hint_y: None
