@@ -1,0 +1,101 @@
+#:import window kivy.core.window.Window
+
+#WindowManager:
+#    LoginPage:
+#    SignUpPage:
+#    HomePage:
+#
+#<HomePage>
+#    name: "HomePage"
+<LoginPage>:
+    name: "LoginPage"
+    Image:
+        source: 'Logo/G.png'
+        size_hint_x: 0.5
+        pos_hint: {"center_x": 0.5, "center_y": 0.75}
+        allow_stretch: True
+    MDBoxLayout:
+        orientation: "vertical"
+        size_hint_y: None
+        pos_hint: {"center_x": 0.5, "center_y": 0.25}
+        spacing: "20dp"
+        MDLabel:
+            text: "Login to your account"
+            font_size: 20
+            size_hint_x: 1
+            pos_hint: {"x": 0.1}
+            theme_text_color: "Custom"
+            text_color: 1,0.64,0,1
+        MDTextField:
+            id: username
+            hint_text: "Enter Username"
+            mode: "rectangle"
+            current_hint_text_color: 1,0.64,0,1
+        MyMDTextField:
+            id: password
+            hint_text: "Enter Password"
+            password: True
+            icon_right: "eye-off"
+            icon_right_color: 0.8, 0.64, 0, 1
+            mode: "rectangle"
+            current_hint_text_color: 1,0.64,0,1
+        MDRaisedButton:
+            text: "Log In"
+            pos_hint: {"center_x": 0.5}
+            on_release:
+                root.log_in()
+        MDTextButton:
+            text: "Dont have an account?"
+            theme_text_color: "Custom"
+            text_color: 1,0.64,0,1
+            pos_hint: {"center_x": 0.5}
+            on_release:
+                app.root.current = "SignUpPage"
+                root.manager.transition.direction = "left"
+
+<SignUpPage>:
+    name: "SignUpPage"
+    Image:
+        source: 'Logo/G.png'
+        size_hint_x: 0.5
+        pos_hint: {"center_x": 0.5, "center_y": 0.75}
+        allow_stretch: True
+    MDBoxLayout:
+        orientation: "vertical"
+        size_hint_y: None
+        pos_hint: {"center_x": 0.5, "center_y": 0.2}
+        spacing: "20dp"
+        MDLabel:
+            text: "Create your account"
+            font_size: 20
+            size_hint_x: 1
+            pos_hint: {"x": 0.1}
+            theme_text_color: "Custom"
+            text_color: 1,0.64,0,1
+        MDTextField:
+            id: username
+            hint_text: "Enter Username"
+            mode: "rectangle"
+            current_hint_text_color: 1,0.64,0,1
+        MyMDTextField:
+            id: password
+            hint_text: "Enter Password"
+            password: True
+            icon_right: "eye-off"
+            icon_right_color: 0.8, 0.64, 0, 1
+            mode: "rectangle"
+            current_hint_text_color: 1,0.64,0,1
+        MyMDTextField:
+            id: re_password
+            hint_text: "Confirm Password"
+            password: True
+            icon_right: "eye-off"
+            icon_right_color: 0.8, 0.64, 0, 1
+            mode: "rectangle"
+            current_hint_text_color: 1,0.64,0,1
+        MDRaisedButton:
+            text: "Sign Up"
+            pos_hint: {"center_x": 0.5}
+            on_release:
+                root.sign_up()
+

@@ -2,22 +2,33 @@
 
 from kivymd.app import MDApp
 from kivy.storage.jsonstore import JsonStore
-from kivy.uix.screenmanager import ScreenManager
+from kivy.uix.screenmanager import ScreenManager, NoTransition, SlideTransition
 from kivy.core.window import Window
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivymd.toast import toast
-from kivymd.uix.button import MDFlatButton
+from kivy.uix.boxlayout import BoxLayout
+from kivymd.uix.button import MDFlatButton, MDFillRoundFlatButton
 from kivymd.uix.dialog import MDDialog
 from functools import partial
 from random import choice
 from kivymd.uix.screen import MDScreen
+from login import *
 
 Window.size = (350, 650)
 Window.softinput_mode = "below_target"
 STORE = JsonStore("database.json")
 DATABASE_CHANGED = True
 MEALS = []
+
+
+class MyButton(MDFillRoundFlatButton):
+    pass
+
+
+class MyBoxLayout(BoxLayout):
+    pass
+
 
 class HomePage(MDScreen):
     pass
@@ -28,6 +39,12 @@ class MealTypeSelectionPage(MDScreen):
 
 
 class AddRestaurantMealPage(MDScreen):
+
+    def on_pre_enter(self):
+        self.ids.Breakfast.unselected_color = 1, 0.64, 0, 1
+        self.ids.Lunch.unselected_color = 1, 0.64, 0, 1
+        self.ids.Snacks.unselected_color = 1, 0.64, 0, 1
+        self.ids.Dinner.unselected_color = 1, 0.64, 0, 1
 
     def add_meal(self):
         global DATABASE_CHANGED, STORE
@@ -418,11 +435,18 @@ class WindowManager(ScreenManager):
     def __init__(self, **kwargs):
         super(WindowManager, self).__init__(**kwargs)
         Window.bind(on_keyboard=self.on_key)
+        self.transition = NoTransition()
 
     def on_key(self, window, key, *args):
         """Maps Screens to return to on back press"""
 
         if key == 27:  # the esc key
+            if self.current_screen.name == "LoginPage":
+                return False  # exit the app from this page
+            if self.current_screen.name == "SignUpPage":
+                self.current = "LoginPage"
+                self.transition.direction = "right"
+                return True  # do not exit the app
             if self.current_screen.name == "HomePage":
                 return False  # exit the app from this page
             elif self.current_screen.name == "MealTypeSelectionPage":
@@ -467,6 +491,15 @@ class MealSuggestionApp(MDApp):
     def build(self):
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "Orange"
+        global CREDS, AUTH
+        try:
+            username = CREDS["User"]["username"]
+            password = CREDS["User"]["password"]
+            AUTH.sign_in_with_email_and_password(username + "@su-gest.user", password)
+            MDApp.get_running_app().root.current = "HomePage"
+        except Exception as e:
+            print("Exception", e)
+        WindowManager.transition = SlideTransition()
         return None
 
 
