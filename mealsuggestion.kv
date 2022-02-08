@@ -34,8 +34,39 @@ WindowManager:
     mode: "rectangle"
     size_hint_x: 0.8
     pos_hint: {"center_x": 0.5}
-    current_hint_text_color: 1,0.64,0,1
+    current_hint_text_color: 1, 0.5, 0, 1
     multiline: False
+
+
+<SwipeToDeleteItem>:
+    size_hint_y: None
+    height: content.height
+    swipe_distance: root.width
+    max_swipe_x: 0.1
+    max_opened_x: "50dp"
+    text: ""
+    on_swipe_complete:
+        root.ids.delete.disabled = False if self.state == "opened" else True
+    MDCardSwipeLayerBox:
+        MDIconButton:
+            id: delete
+            icon: "trash-can"
+            theme_text_color: "Custom"
+            text_color: 1, 0, 0, 1
+            disabled: True
+    MDCardSwipeFrontBox:
+        canvas.before:
+            Color:
+                rgba: 1, 0.6, 0, 1
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        OneLineListItem:
+            id: content
+            text: root.text
+            theme_text_color: "Custom"
+            text_color: 0, 0, 0, 0.9
+            _no_ripple_effect: True
 
 
 <HomePage>:
@@ -88,7 +119,7 @@ WindowManager:
             cols: 3
             MDLabel:
                 text: "Choose Meal Type: "
-                text_color: 1,0.5,0,1
+                text_color: 1, 0.5, 0, 1
                 halign: "center"
             BoxLayout:
                 orientation: "vertical"
@@ -107,27 +138,27 @@ WindowManager:
                 orientation: "vertical"
                 MDLabel:
                     text: "Breakfast"
-                    text_color: 1,0.5,0,1
+                    text_color: 1, 0.5, 0, 1
                 MDLabel:
                     text: "Lunch"
-                    text_color: 1,0.5,0,1
+                    text_color: 1, 0.5, 0, 1
                 MDLabel:
                     text: "Dinner"
-                    text_color: 1,0.5,0,1
+                    text_color: 1, 0.5, 0, 1
                 MDLabel:
                     text: "Snack"
-                    text_color: 1,0.5,0,1
+                    text_color: 1, 0.5, 0, 1
         MDTextField:
             id: dish_name
             hint_text: "Enter dish name"
         MDTextField:
-            id: dish_name
+            id: restaurant_name
             hint_text: "Enter restaurant name"
         MDTextField:
-            id: dish_name
+            id: restaurant_number
             hint_text: "Enter restaurant number"
         MDTextField:
-            id: dish_name
+            id: delivery_links
             size_hint: 0.8, 1
             multiline: True
             hint_text: "Enter Delivery links"
@@ -142,19 +173,19 @@ WindowManager:
 
 <AddHomeMadeMealPage>:
     name: "AddHomeMadeMealPage"
-    BoxLayout:
-        size: root.width, root.height
-        orientation: "vertical"
+    MyBoxLayout:
         MDToolbar:
             title:'Su-gest'
         GridLayout:
             cols: 3
             MDLabel:
                 text: "Choose Meal Type: "
-                size_hint_x: None
-                width: "150dp"
+                text_color: 1, 0.5, 0, 1
+                halign: "center"
             BoxLayout:
                 orientation: "vertical"
+                size_hint_x: None
+                width: "50dp"
                 MDCheckbox:
                     id: Breakfast
                 MDCheckbox:
@@ -164,47 +195,37 @@ WindowManager:
                 MDCheckbox:
                     id: Snacks
             BoxLayout:
+                size_hint_x: 0.4
                 orientation: "vertical"
                 MDLabel:
                     text: "Breakfast"
+                    text_color: 1, 0.5, 0, 1
                 MDLabel:
                     text: "Lunch"
+                    text_color: 1, 0.5, 0, 1
                 MDLabel:
                     text: "Dinner"
+                    text_color: 1, 0.5, 0, 1
                 MDLabel:
                     text: "Snack"
-        MDLabel:
-            text: "Dish Name:"
-            text_size: self.size
-            halign: "left"
-            size_hint_y: None
-            height: "20dp"
-        TextInput:
+                    text_color: 1, 0.5, 0, 1
+        MDTextField:
             id: dish_name
-            size_hint_y: None
-            height: "50dp"
-            multiline: False
-        MDLabel:
-            text: "Ingredients:"
-            text_size: self.size
-            halign: "left"
-            size_hint_y: None
-            height: "20dp"
-        TextInput:
+            hint_text: "Enter dish name"
+        MDTextField:
             id: ingredients
+            size_hint: 0.8, 1
             multiline: True
-        MDLabel:
-            text: "Recipe:"
-            text_size: self.size
-            halign: "left"
-            size_hint_y: None
-            height: "20dp"
-        TextInput:
+            hint_text: "Enter Ingredients"
+        MDTextField:
             id: recipe
+            size_hint: 0.8, 1
             multiline: True
-        Button:
+            hint_text: "Enter Recipe"
+        MDFillRoundFlatButton:
             text: "Add Meal"
-            size_hint_y: None
+            size_hint: 0.9, None
+            pos_hint: {'center_x': 0.5}
             height: "50dp"
             on_release:
                 root.add_meal()
@@ -212,22 +233,19 @@ WindowManager:
 
 <ViewMealsPage>:
     name: "ViewMealsPage"
-    BoxLayout:
+    MDBoxLayout:
         size: root.width, root.height
         orientation: "vertical"
+        spacing: "1dp"
         MDToolbar:
             title:'Su-gest'
         ScrollView:
             GridLayout:
-                id: outer
+                id: grid
                 cols: 1
+                spacing: "1dp"
                 size_hint_y: None
                 height: self.minimum_height
-                GridLayout:
-                    id: grid
-                    cols: 2
-                    size_hint_y: None
-                    height: self.minimum_height
 
 
 <EditRestaurantMealPage>:

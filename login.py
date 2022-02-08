@@ -2,8 +2,6 @@ import pyrebase
 import requests
 from kivy.properties import BooleanProperty
 from kivy.storage.jsonstore import JsonStore
-from kivymd.app import MDApp
-from kivy.uix.screenmanager import ScreenManager
 from kivymd.uix.screen import MDScreen
 from kivy.core.window import Window
 from kivymd.uix.textfield import MDTextField
@@ -74,7 +72,7 @@ class HomePage(MDScreen):
 class LoginPage(MDScreen):
 
     def log_in(self):
-        global STORE, AUTH
+        global AUTH, USERNAME
         if self.ids.username.text == "":
             toast("Please Enter Username")
             return
@@ -87,6 +85,7 @@ class LoginPage(MDScreen):
         try:
             AUTH.sign_in_with_email_and_password(username+"@su-gest.user", password)
             CREDS.put("User", username=username, password=password)
+            USERNAME = username
             print("Logged in")
         except Exception as e:
             if type(e) == requests.exceptions.ConnectionError:
@@ -96,7 +95,7 @@ class LoginPage(MDScreen):
             print(error)
             if error == "INVALID_EMAIL":
                 toast("Invalid Username")
-            if error == "EMAIL_NOT_FOUND":
+            elif error == "EMAIL_NOT_FOUND":
                 toast("User does not exist")
             elif error == "INVALID_PASSWORD":
                 toast("Incorrect Password")
