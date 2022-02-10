@@ -1,7 +1,6 @@
 """An App that helps you decide what dish to have for your meal"""
 
 from kivy.uix.screenmanager import NoTransition, SlideTransition, ScreenManager
-from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivymd.app import MDApp
@@ -10,7 +9,7 @@ from kivymd.uix.dialog import MDDialog
 from random import choice
 from kivymd.uix.card import MDCardSwipe
 from kivymd.uix.label import MDLabel
-
+from kivymd.uix.textfield import MDTextField
 from login import *
 
 Window.size = (350, 650)
@@ -44,6 +43,7 @@ class MealTypeSelectionPage(MDScreen):
 class AddRestaurantMealPage(MDScreen):
 
     def on_pre_enter(self):
+        # Setting Checkbox color
         self.ids.Breakfast.unselected_color = 1, 0.64, 0, 1
         self.ids.Lunch.unselected_color = 1, 0.64, 0, 1
         self.ids.Snacks.unselected_color = 1, 0.64, 0, 1
@@ -83,6 +83,9 @@ class AddRestaurantMealPage(MDScreen):
                                    "restaurant_number": self.ids.restaurant_number.text,
                                    "delivery_links": self.ids.delivery_links.text}})
 
+        self.manager.current = "HomePage"
+        self.manager.transition.direction = "right"
+
         for meal_id in meal_ids:
             self.ids[meal_id].active = False
         self.ids.dish_name.text = ""
@@ -92,13 +95,12 @@ class AddRestaurantMealPage(MDScreen):
 
         DATABASE_CHANGED = True
         toast("Dish successfully added!")
-        self.manager.current = "HomePage"
-        self.manager.transition.direction = "right"
 
 
 class AddHomeMadeMealPage(MDScreen):
 
     def on_pre_enter(self):
+        # Setting Checkbox color
         self.ids.Breakfast.unselected_color = 1, 0.64, 0, 1
         self.ids.Lunch.unselected_color = 1, 0.64, 0, 1
         self.ids.Snacks.unselected_color = 1, 0.64, 0, 1
@@ -136,6 +138,9 @@ class AddHomeMadeMealPage(MDScreen):
                                    "ingredients": self.ids.ingredients.text,
                                    "recipe": self.ids.recipe.text}})
 
+        self.manager.current = "HomePage"
+        self.manager.transition.direction = "right"
+
         for meal_id in meal_ids:
             self.ids[meal_id].active = False
         self.ids.dish_name.text = ""
@@ -144,8 +149,6 @@ class AddHomeMadeMealPage(MDScreen):
 
         DATABASE_CHANGED = True
         toast("Dish successfully added!")
-        self.manager.current = "HomePage"
-        self.manager.transition.direction = "right"
 
 
 class ViewMealsPage(MDScreen):
@@ -168,7 +171,7 @@ class ViewMealsPage(MDScreen):
                                             md_bg_color=(0.75, 0, 0.05, 1),
                                             size_hint=(1, None),
                                             text_color=(0, 0, 0, 0.9),
-                                            on_release=self.delete_all_meals)
+                                            on_release=self.confirm)
                 self.ids["delete_all"] = delete_all
                 self.ids.grid.add_widget(delete_all, index=0)
             for meal in meals:
@@ -217,7 +220,6 @@ class ViewMealsPage(MDScreen):
         self.manager.current = "EditHomeMadeMealPage"
         self.manager.transition.direction = "left"
 
-
     def delete_meal(self, list_item):
         global DATABASE_CHANGED, DB, MEALS
         DB.child(USERNAME).child(list_item.text).remove()
@@ -233,8 +235,24 @@ class ViewMealsPage(MDScreen):
             self.ids["no_meal"] = self.label
             self.ids.grid.add_widget(self.label)
 
+    def confirm(self, _):
+        self.dialog = MDDialog(
+            title="[color=ffffff]Confirm Delete?[/color]",
+            text="Are you sure you want to delete all meals?",
+            buttons=[
+                MDFlatButton(text="Cancel", on_release=self.close_confirm),
+                MDFlatButton(text="Yes", on_release=self.delete_all_meals)
+            ]
+
+        )
+        self.dialog.open()
+
+    def close_confirm(self, _):
+        self.dialog.dismiss()
+
     def delete_all_meals(self, _):
         global DATABASE_CHANGED, MEALS, DB
+        self.dialog.dismiss()
         DB.update({USERNAME: ""})
         DATABASE_CHANGED = True
         self.ids.grid.clear_widgets()
@@ -248,15 +266,28 @@ class ViewMealsPage(MDScreen):
 
 class EditRestaurantMealPage(MDScreen):
 
-    def on_enter(self):
+    def on_pre_enter(self):
+        # Setting Checkbox color
+        self.ids.Breakfast.unselected_color = 1, 0.64, 0, 1
+        self.ids.Lunch.unselected_color = 1, 0.64, 0, 1
+        self.ids.Snacks.unselected_color = 1, 0.64, 0, 1
+        self.ids.Dinner.unselected_color = 1, 0.64, 0, 1
+
+        # Storing Dish name
         self.dish_name = self.ids.dish_name.text
 
-    def save_changes(self):
-        global DATABASE_CHANGED, STORE
-        self.meal_ids = ["Breakfast", "Lunch", "Dinner", "Snacks"]
+        # Setting Textfield focus
+        self.ids.dish_name.focus = True
+        self.ids.restaurant_name.focus = True
+        self.ids.restaurant_number.focus = True
+        self.ids.delivery_links.focus = True
 
-        if not (self.ids[self.meal_ids[0]].active or self.ids[self.meal_ids[1]].active or
-                self.ids[self.meal_ids[2]].active or self.ids[self.meal_ids[3]].active):
+    def save_changes(self):
+        global DATABASE_CHANGED, DB, MEALS
+        meal_ids = ["Breakfast", "Lunch", "Dinner", "Snacks"]
+
+        if not (self.ids[meal_ids[0]].active or self.ids[meal_ids[1]].active or
+                self.ids[meal_ids[2]].active or self.ids[meal_ids[3]].active):
             toast("Choose at least one meal type")
             return
         if self.ids.dish_name.text == "":
@@ -265,28 +296,31 @@ class EditRestaurantMealPage(MDScreen):
         if self.ids.restaurant_name.text == "":
             toast("Restaurant name cannot be blank")
             return
+
+        if self.dish_name != self.ids.dish_name.text:
+            if self.ids.dish_name.text in DB.child(USERNAME).get().val().keys():
+                toast("Dish name already exists")
+                return
+            Screen = self.manager.get_screen("ViewMealsPage")
+            DB.child(USERNAME).child(self.dish_name).remove()
+            Screen.ids.grid.remove_widget(Screen.ids.grid.children[MEALS.index(self.dish_name)+1])
+            MEALS.remove(self.dish_name)
+
+        meal_types = []
+        for meal_id in meal_ids:
+            if self.ids[meal_id].active:
+                meal_types.append(meal_id)
+
         if self.ids.restaurant_number.text == "":
             self.ids.restaurant_number.text = "No number provided"
         if self.ids.delivery_links.text == "":
             self.ids.delivery_links.text = "No delivery links provided"
 
-        self.meal_types = []
-        for meal_id in self.meal_ids:
-            if self.ids[meal_id].active:
-                self.meal_types.append(meal_id)
-
-        if self.dish_name != self.ids.dish_name.text:
-            if self.ids.dish_name.text in STORE.keys():
-                toast("Dish name already exists")
-                return
-            Screen = self.manager.get_screen("ViewMealsPage")
-            Screen.delete_meal(self.dish_name, self)
-
-        STORE.put(self.ids.dish_name.text,
-                  meal_type=self.meal_types,
-                  restaurant_name=self.ids.restaurant_name.text,
-                  restaurant_number=self.ids.restaurant_number.text,
-                  delivery_links=self.ids.delivery_links.text)
+        DB.child(USERNAME).update({self.ids.dish_name.text: {
+                                   "meal_type": meal_types,
+                                   "restaurant_name": self.ids.restaurant_name.text,
+                                   "restaurant_number": self.ids.restaurant_number.text,
+                                   "delivery_links": self.ids.delivery_links.text}})
 
         DATABASE_CHANGED = True
         self.manager.current = "ViewMealsPage"
@@ -296,14 +330,26 @@ class EditRestaurantMealPage(MDScreen):
 class EditHomeMadeMealPage(MDScreen):
 
     def on_enter(self):
+        # Setting Checkbox color
+        self.ids.Breakfast.unselected_color = 1, 0.64, 0, 1
+        self.ids.Lunch.unselected_color = 1, 0.64, 0, 1
+        self.ids.Snacks.unselected_color = 1, 0.64, 0, 1
+        self.ids.Dinner.unselected_color = 1, 0.64, 0, 1
+
+        # Storing Dish name
         self.dish_name = self.ids.dish_name.text
 
-    def save_changes(self):
-        global DATABASE_CHANGED, STORE
-        self.meal_ids = ["Breakfast", "Lunch", "Dinner", "Snacks"]
+        # Setting Textfield focus
+        self.ids.dish_name.focus = True
+        self.ids.recipe.focus = True
+        self.ids.ingredients.focus = True
 
-        if not (self.ids[self.meal_ids[0]].active or self.ids[self.meal_ids[1]].active or
-                self.ids[self.meal_ids[2]].active or self.ids[self.meal_ids[3]].active):
+    def save_changes(self):
+        global DATABASE_CHANGED, DB, MEALS
+        meal_ids = ["Breakfast", "Lunch", "Dinner", "Snacks"]
+
+        if not (self.ids[meal_ids[0]].active or self.ids[meal_ids[1]].active or
+                self.ids[meal_ids[2]].active or self.ids[meal_ids[3]].active):
             toast("Choose at least one meal type")
             return
         if self.ids.dish_name.text == "":
@@ -316,22 +362,24 @@ class EditHomeMadeMealPage(MDScreen):
             toast("Recipe name cannot be blank")
             return
 
-        self.meal_types = []
-        for meal_id in self.meal_ids:
-            if self.ids[meal_id].active:
-                self.meal_types.append(meal_id)
-
         if self.dish_name != self.ids.dish_name.text:
-            if self.ids.dish_name.text in STORE.keys():
+            if self.ids.dish_name.text in DB.child(USERNAME).get().val().keys():
                 toast("Dish name already exists")
                 return
             Screen = self.manager.get_screen("ViewMealsPage")
-            Screen.delete_meal(self.dish_name, self)
+            DB.child(USERNAME).child(self.dish_name).remove()
+            Screen.ids.grid.remove_widget(Screen.ids.grid.children[MEALS.index(self.dish_name) + 1])
+            MEALS.remove(self.dish_name)
 
-        STORE.put(self.ids.dish_name.text,
-                  meal_type=self.meal_types,
-                  ingredients=self.ids.ingredients.text,
-                  recipe=self.ids.recipe.text)
+        meal_types = []
+        for meal_id in meal_ids:
+            if self.ids[meal_id].active:
+                meal_types.append(meal_id)
+
+        DB.child(USERNAME).update({self.ids.dish_name.text: {
+                                   "meal_type": meal_types,
+                                   "ingredients": self.ids.ingredients.text,
+                                   "recipe": self.ids.recipe.text}})
 
         DATABASE_CHANGED = True
         self.manager.current = "ViewMealsPage"
