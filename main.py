@@ -9,7 +9,7 @@ from kivymd.uix.dialog import MDDialog
 from random import choice
 from kivymd.uix.card import MDCardSwipe
 from kivymd.uix.label import MDLabel
-from kivymd.uix.textfield import MDTextField
+from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelOneLine
 from login import *
 
 Window.size = (350, 650)
@@ -29,6 +29,10 @@ class MyBoxLayout(BoxLayout):
 
 
 class SwipeToDeleteItem(MDCardSwipe):
+    pass
+
+
+class Content(BoxLayout):
     pass
 
 
@@ -388,10 +392,50 @@ class EditHomeMadeMealPage(MDScreen):
 
 class SuggestionPage(MDScreen):
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        Clock.schedule_once(self._finish_init)
+
+    def _finish_init(self, dt):
+        self.create_dropdown(0.75, "Choose Meal From", "meal_from", "Home-made", "Restaurant")
+        self.create_dropdown(0.5, "Choose Meal Type", "meal_type", "Breakfast", "Lunch", "Dinner", "Snacks")
+
+
+    def create_dropdown(self, y, title, id, *items):
+        content = Content()
+        for item in items:
+            button = MDRaisedButton(size_hint=(1, None), height="70dp", text=item)
+            content.add_widget(button)
+
+        dropdown = MDExpansionPanel(
+            content=content,
+            panel_cls=MDExpansionPanelOneLine(
+                text=title,
+                theme_text_color="Custom",
+                text_color=(0, 0, 0, 0.9)
+            ),
+            size_hint_x=0.8,
+            pos_hint={"center_x": 0.5, "center_y": y}
+        )
+        dropdown.chevron.children[0].theme_text_color = 'Custom'
+        dropdown.chevron.children[0].text_color = (0, 0, 0, 1)
+        dropdown.panel_cls._txt_left_pad = 10
+        self.ids.box.add_widget(dropdown)
+        self.ids[id] = dropdown
+        for button in dropdown.content.children:
+            button.on_release = partial(self.press, dropdown, button.text)
+
+    def press(self, dropdown, text):
+        dropdown.children[1].text = text
+        dropdown.check_open_panel(dropdown.children[1])
+
     def result(self):
+        print(self.ids.meal_type.children[0].text)
+        print(self.ids.meal_from.children[0].text)
+        return
         global STORE
-        self.meal_type = self.manager.get_screen("SuggestionPage").ids.meal_type.text
-        self.meal_from = self.manager.get_screen("SuggestionPage").ids.meal_from.text
+        self.meal_type = self.ids.meal_type.children[0].text
+        self.meal_from = self.ids.meal_from.children[0].text
         self.options = []
         for meal in STORE:
             if self.meal_type in STORE[meal]["meal_type"]:

@@ -69,6 +69,19 @@ WindowManager:
             _no_ripple_effect: True
 
 
+<MDExpansionPanel>
+    canvas:
+        Color:
+            rgba: 1, 0.5, 0, 1
+        Rectangle:
+            size: self.size
+
+<Content>
+    size_hint_y: None
+    height: self.minimum_height
+    orientation: "vertical"
+
+
 <HomePage>:
     name: "HomePage"
     MyBoxLayout:
@@ -376,37 +389,47 @@ WindowManager:
         orientation: "vertical"
         MDToolbar:
             title:'Su-gest'
-        GridLayout:
-            cols: 2
-            size_hint_y: None
-            height: "50dp"
-            MDLabel:
-                text: "Choose Meal From: "
-            Spinner:
-                id: meal_from
-                text: "Home-made"
-                values: ["Home-made", "Restaurant", "Mix"]
-        MDLabel:
-            text: ""
-            size_hint: 1, 0.5
-        GridLayout:
-            cols: 2
-            MDLabel:
-                text: "Choose Meal Type: "
-                size_hint_y: None
+        FloatLayout:
+            id: box
+            size: root.width, root.height
+            MDFillRoundFlatButton:
+                text: "Su-gest"
+                size_hint: 0.9, None
+                pos_hint: {'center_x': 0.5, 'center_y': 0.06}
                 height: "50dp"
-            Spinner:
-                id: meal_type
-                size_hint_y: None
-                height: "50dp"
-                text: "Breakfast"
-                values: ["Breakfast", "Lunch", "Dinner", "Snacks"]
-        Button:
-            text: "Suggest Meal"
-            size_hint_y: None
-            height: "50dp"
-            on_release:
-                root.result()
+                on_release:
+                    root.result()
+#        GridLayout:
+#            cols: 2
+#            size_hint_y: None
+#            height: "50dp"
+#            MDLabel:
+#                text: "Choose Meal From: "
+#            Spinner:
+#                id: meal_from
+#                text: "Home-made"
+#                values: ["Home-made", "Restaurant", "Mix"]
+#        MDLabel:
+#            text: ""
+#            size_hint: 1, 0.5
+#        GridLayout:
+#            cols: 2
+#            MDLabel:
+#                text: "Choose Meal Type: "
+#                size_hint_y: None
+#                height: "50dp"
+#            Spinner:
+#                id: meal_type
+#                size_hint_y: None
+#                height: "50dp"
+#                text: "Breakfast"
+#                values: ["Breakfast", "Lunch", "Dinner", "Snacks"]
+#        Button:
+#            text: "Suggest Meal"
+#            size_hint_y: None
+#            height: "50dp"
+#            on_release:
+#                root.result()
 
 
 <ResultPage>:
