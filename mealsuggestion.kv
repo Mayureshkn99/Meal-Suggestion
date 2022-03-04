@@ -76,10 +76,38 @@ WindowManager:
         Rectangle:
             size: self.size
 
+
 <Content>
     size_hint_y: None
     height: self.minimum_height
     orientation: "vertical"
+
+
+<MD3Card>:
+    border_radius: 20
+    radius: [10]
+    size_hint_y: None
+    text: "blah"
+    md_bg_color: 1, 0.5, 0, 0.7
+
+
+<MyCard>
+    height: label.texture_size[1] + dp(30)
+    orientation: "vertical"
+    MDLabel:
+        theme_text_color: "Custom"
+        text: root.title
+        font_style: "H6"
+        size_hint_y: None
+        height: "40dp"
+        padding: (20 ,0)
+    MDSeparator:
+        color: 0, 0, 0, 0.1
+    MDLabel:
+        id: label
+        theme_text_color: "Custom"
+        text: root.content
+        padding: ("20dp", "10dp")
 
 
 <HomePage>:
@@ -399,37 +427,6 @@ WindowManager:
                 height: "50dp"
                 on_release:
                     root.result()
-#        GridLayout:
-#            cols: 2
-#            size_hint_y: None
-#            height: "50dp"
-#            MDLabel:
-#                text: "Choose Meal From: "
-#            Spinner:
-#                id: meal_from
-#                text: "Home-made"
-#                values: ["Home-made", "Restaurant", "Mix"]
-#        MDLabel:
-#            text: ""
-#            size_hint: 1, 0.5
-#        GridLayout:
-#            cols: 2
-#            MDLabel:
-#                text: "Choose Meal Type: "
-#                size_hint_y: None
-#                height: "50dp"
-#            Spinner:
-#                id: meal_type
-#                size_hint_y: None
-#                height: "50dp"
-#                text: "Breakfast"
-#                values: ["Breakfast", "Lunch", "Dinner", "Snacks"]
-#        Button:
-#            text: "Suggest Meal"
-#            size_hint_y: None
-#            height: "50dp"
-#            on_release:
-#                root.result()
 
 
 <ResultPage>:
@@ -439,56 +436,37 @@ WindowManager:
         orientation: "vertical"
         MDToolbar:
             title:'Su-gest'
-        GridLayout:
-            cols: 2
+        BoxLayout:
+            orientation: "vertical"
             size_hint_y: None
-            height: "50 dp"
-            MDLabel:
-                text: "Dish name: "
-                size_hint_x: 0.3
-            MDLabel:
-                id: dish_name
-                text: ""
+            height: "70dp"
+            padding: [0, 0, 0, 10]
+            MD3Card:
+                height: "50dp"
+                size_hint: 0.9, None
+                pos_hint: {'center_x': 0.5}
+                MDLabel:
+                    id: dish_name
+                    font_style: "H6"
+                    theme_text_color: "Custom"
+                    halign: "center"
         ScrollView:
             BoxLayout:
                 id: meal_details
                 orientation: "vertical"
-                size: root.width, root.height
-                size_hint: 1, None
+                spacing: "10dp"
+                padding: ["20dp", 0]
+                size_hint_y: None
                 height: self.minimum_height
-#                MDLabel:
-#                    text: "Ingredients:"
-#                    font_size: 25
-#                    text_size: self.size
-#                    halign: "left"
-#                    size_hint_y: None
-#                    height: "30dp"
-#                MDLabel:
-#                    text: "Eggs\nSalt\nPepper\nMilk\nEggs\nSalt\nPepper\nEggs\nSalt\nPepper\nEggs\nSalt\nPepper\n"
-#                    size_hint_y: None
-#                    text_size: self.width, None
-#                    height: self.texture_size[1]
-#                    halign: "left"
-#                Widget:
-#                    size_hint_y: None
-#                    height: "30dp"
-#                MDLabel:
-#                    text: "Recipe:"
-#                    font_size: 25
-#                    text_size: self.size
-#                    halign: "left"
-#                    size_hint_y: None
-#                    height: "30dp"
-#                MDLabel:
-#                    text: "Beat it\nHeat it\nEat it\nBeat it\nHeat it\nEat itBeat it\nHeat it\nEat itBeat it\nHeat it\nEat it"
-#                    size_hint_y: None
-#                    text_size: self.width, None
-#                    height: self.texture_size[1]
-#                    halign: "left"
-#                Widget:
-        Button:
-            text: "Change"
+        BoxLayout:
+            orientation: "vertical"
             size_hint_y: None
-            height: "50dp"
-            on_release:
-                root.change()
+            height: "60dp"
+            padding: (0, 10)
+            MDFillRoundFlatButton:
+                text: "Change"
+                size_hint: 0.9, None
+                pos_hint: {'center_x': 0.5, 'center_y': 0.06}
+                height: "50dp"
+                on_release:
+                    root.change()

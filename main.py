@@ -1,13 +1,14 @@
 """An App that helps you decide what dish to have for your meal"""
-
+from kivy.properties import StringProperty
 from kivy.uix.screenmanager import NoTransition, SlideTransition, ScreenManager
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivymd.app import MDApp
+from kivymd.uix.behaviors import RoundedRectangularElevationBehavior
 from kivymd.uix.button import MDFlatButton, MDFillRoundFlatButton, MDRaisedButton
 from kivymd.uix.dialog import MDDialog
 from random import choice
-from kivymd.uix.card import MDCardSwipe
+from kivymd.uix.card import MDCardSwipe, MDCard
 from kivymd.uix.label import MDLabel
 from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelOneLine
 from login import *
@@ -34,6 +35,15 @@ class SwipeToDeleteItem(MDCardSwipe):
 
 class Content(BoxLayout):
     pass
+
+
+class MD3Card(MDCard, RoundedRectangularElevationBehavior):
+    pass
+
+
+class MyCard(MD3Card):
+    title = StringProperty()
+    content = StringProperty()
 
 
 class HomePage(MDScreen):
@@ -397,7 +407,7 @@ class SuggestionPage(MDScreen):
         Clock.schedule_once(self._finish_init)
 
     def _finish_init(self, dt):
-        self.create_dropdown(0.75, "Choose Meal From", "meal_from", "Home-made", "Restaurant")
+        self.create_dropdown(0.75, "Choose Meal From", "meal_from", "Home-made", "Restaurant", "Mix")
         self.create_dropdown(0.5, "Choose Meal Type", "meal_type", "Breakfast", "Lunch", "Dinner", "Snacks")
 
 
@@ -430,21 +440,20 @@ class SuggestionPage(MDScreen):
         dropdown.check_open_panel(dropdown.children[1])
 
     def result(self):
-        print(self.ids.meal_type.children[0].text)
-        print(self.ids.meal_from.children[0].text)
-        return
-        global STORE
-        self.meal_type = self.ids.meal_type.children[0].text
-        self.meal_from = self.ids.meal_from.children[0].text
+        global DB, USERNAME
+        meal_from = self.ids.meal_from.children[0].text
+        meal_type = self.ids.meal_type.children[0].text
         self.options = []
-        for meal in STORE:
-            if self.meal_type in STORE[meal]["meal_type"]:
-                if self.meal_from == "Home-made" and ("ingredients" in STORE[meal].keys()):
+
+        for meal in DB.child(USERNAME).get():
+            if meal_type in meal.val()["meal_type"]:
+                if meal_from == "Home-made" and ("ingredients" in meal.val().keys()):
                     self.options.append(meal)
-                elif self.meal_from == "Restaurant" and ("restaurant_name" in STORE[meal].keys()):
+                elif meal_from == "Restaurant" and ("restaurant_name" in meal.val().keys()):
                     self.options.append(meal)
-                elif self.meal_from == "Mix":
+                elif meal_from == "Mix":
                     self.options.append(meal)
+
         if self.options == []:
             toast("No meals for this category")
         else:
@@ -455,55 +464,22 @@ class SuggestionPage(MDScreen):
 class ResultPage(MDScreen):
 
     def on_enter(self):
-        global STORE
-        self.meal_type = self.manager.get_screen("SuggestionPage").ids.meal_type.text
-        self.meal_from = self.manager.get_screen("SuggestionPage").ids.meal_from.text
-        self.options = []
-        for meal in STORE:
-            if self.meal_type in STORE[meal]["meal_type"]:
-                if self.meal_from == "Home-made" and ("ingredients" in STORE[meal].keys()):
-                    self.options.append(meal)
-                elif self.meal_from == "Restaurant" and ("restaurant_name" in STORE[meal].keys()):
-                    self.options.append(meal)
-                elif self.meal_from == "Mix":
-                    self.options.append(meal)
-        self.meal = choice(self.options)
-        self.ids.dish_name.text = self.meal
+        self.options = self.manager.get_screen("SuggestionPage").options
+        meal = choice(self.options)
+        self.ids.dish_name.text = meal.key()
         self.ids.meal_details.clear_widgets()
-        if "ingredients" in STORE[self.meal].keys():  # Home-made
-            self.ingredients_label = Label(text="Ingredients:", font_size="25dp", size_hint_y=None, padding_y="10dp")
-            self.set_label(self.ingredients_label)
-            self.ingredients = Label(text=STORE[self.meal]["ingredients"], size_hint_y=None)
-            self.set_label(self.ingredients)
-            self.ids.meal_details.add_widget(Label(size_hint_y=None, height="30dp"))
-            self.recipe_label = Label(text="Recipe:", font_size="25dp", size_hint_y=None, padding_y="10dp")
-            self.set_label(self.recipe_label)
-            self.recipe = Label(text=STORE[self.meal]["recipe"], size_hint_y=None)
-            self.set_label(self.recipe)
+        if "ingredients" in meal.val().keys():  # Home-made
+            ingredients = MyCard(title="Ingredients", content=meal.val()["ingredients"])
+            recipe = MyCard(title="Recipe", content=meal.val()["recipe"])
+            self.ids.meal_details.add_widget(ingredients)
+            self.ids.meal_details.add_widget(recipe)
         else:  # Restaurant
-            self.restaurant_name_label = Label(text="Restaurant Name:", font_size="25dp", size_hint_y=None,
-                                               padding_y="10dp")
-            self.set_label(self.restaurant_name_label)
-            self.restaurant_name = Label(text=STORE[self.meal]["restaurant_name"], size_hint_y=None)
-            self.set_label(self.restaurant_name)
-            self.ids.meal_details.add_widget(Label(size_hint_y=None, height="30dp"))
-            self.restaurant_number_label = Label(text="Restaurant Number:", font_size="25dp", size_hint_y=None,
-                                                 padding_y="10dp")
-            self.set_label(self.restaurant_number_label)
-            self.restaurant_number = Label(text=STORE[self.meal]["restaurant_number"], size_hint_y=None)
-            self.set_label(self.restaurant_number)
-            self.delivery_links_label = Label(text="Order From:", font_size="25dp", size_hint_y=None,
-                                              padding_y="10dp")
-            self.ids.meal_details.add_widget(Label(size_hint_y=None, height="30dp"))
-            self.set_label(self.delivery_links_label)
-            self.delivery_links = Label(text=STORE[self.meal]["delivery_links"], size_hint_y=None)
-            self.set_label(self.delivery_links)
-        self.ids.meal_details.add_widget(Label())
-
-    def set_label(self, label):
-        label.bind(width=lambda s, w: s.setter('text_size')(s, (w, None)))
-        label.bind(texture_size=label.setter('size'))
-        self.ids.meal_details.add_widget(label)
+            restaurant_name = MyCard(title="Restaurant Name", content=meal.val()["restaurant_name"])
+            restaurant_number = MyCard(title="Restaurant Number", content=meal.val()["restaurant_number"])
+            delivery_links = MyCard(title="Delivery Links", content=meal.val()["delivery_links"])
+            self.ids.meal_details.add_widget(restaurant_name)
+            self.ids.meal_details.add_widget(restaurant_number)
+            self.ids.meal_details.add_widget(delivery_links)
 
     def change(self):
         if len(self.options) == 1:
