@@ -11,6 +11,8 @@ from random import choice
 from kivymd.uix.card import MDCardSwipe, MDCard
 from kivymd.uix.label import MDLabel
 from kivymd.uix.expansionpanel import MDExpansionPanel, MDExpansionPanelOneLine
+from kivymd.uix.menu import MDDropdownMenu
+
 from login import *
 
 Window.size = (350, 650)
@@ -44,6 +46,46 @@ class MD3Card(MDCard, RoundedRectangularElevationBehavior):
 class MyCard(MD3Card):
     title = StringProperty()
     content = StringProperty()
+
+
+class AccountPage(MDScreen):
+
+    def on_pre_enter(self):
+        global CREDS
+        self.ids.username.text = "Hi, "+CREDS["User"]["username"]
+
+    def confirm(self, _):
+        self.dialog = MDDialog(
+            title="[color=ffffff]Confirm Logout?[/color]",
+            text="Are you sure you want to logout?",
+            buttons=[
+                MDFlatButton(text="Cancel", on_release=self.close_confirm),
+                MDFlatButton(text="Yes", on_release=self.logout)
+            ]
+
+        )
+        self.dialog.open()
+
+    def close_confirm(self, _):
+        self.dialog.dismiss()
+
+    def logout(self, _):
+        global CREDS
+
+        CREDS.clear()
+        self.manager.current = "LoginPage"
+        self.manager.transition.direction = "right"
+        toast("Successfully Logged Out!")
+        print("Logged Out")
+        self.dialog.dismiss()
+
+
+class SettingsPage(MDScreen):
+    pass
+
+
+class ChangePasswordPage(MDScreen):
+    pass
 
 
 class HomePage(MDScreen):
@@ -442,7 +484,13 @@ class SuggestionPage(MDScreen):
     def result(self):
         global DB, USERNAME
         meal_from = self.ids.meal_from.children[0].text
+        if meal_from == "Choose Meal From":
+            toast("Please Choose Meal From")
+            return
         meal_type = self.ids.meal_type.children[0].text
+        if meal_type == "Choose Meal Type":
+            toast("Please Choose Meal Type")
+            return
         self.options = []
 
         for meal in DB.child(USERNAME).get():
@@ -505,6 +553,14 @@ class WindowManager(ScreenManager):
                 self.current = "LoginPage"
                 self.transition.direction = "right"
                 return True  # do not exit the app
+            if self.current_screen.name == "AccountPage":
+                self.current = MealSuggestionApp.previous
+                self.transition.direction = "right"
+                return True  # do not exit the app
+            if self.current_screen.name == "SettingsPage":
+                self.current = MealSuggestionApp.previous
+                self.transition.direction = "right"
+                return True  # do not exit the app
             if self.current_screen.name == "HomePage":
                 return False  # exit the app from this page
             elif self.current_screen.name == "MealTypeSelectionPage":
@@ -554,6 +610,13 @@ class MealSuggestionApp(MDApp):
         self.theme_cls.theme_style = "Dark"
         # self.theme_cls.primary_palette = "Cyan"
         # self.theme_cls.primary_hue = "100"
+
+        self.check_login()
+        self.set_menu()
+
+        return None
+
+    def check_login(self):
         global CREDS, AUTH, USERNAME
         try:
             username = CREDS["User"]["username"]
@@ -564,7 +627,37 @@ class MealSuggestionApp(MDApp):
         except Exception as e:
             print("Exception", e)
         WindowManager.transition = SlideTransition()
-        return None
+
+    def set_menu(self):
+        menu_items = [
+            {
+                "viewclass": "OneLineListItem",
+                "text": "Account",
+                "height": dp(50),
+                "on_release": lambda x=f"AccountPage": self.menu_callback(x),
+            },
+            {
+                "viewclass": "OneLineListItem",
+                "text": "Settings",
+                "height": dp(50),
+                "on_release": lambda x=f"SettingsPage": self.menu_callback(x),
+            }
+        ]
+        self.menu = MDDropdownMenu(
+            items=menu_items,
+            width_mult=1.8,
+        )
+
+    def callback(self, button):
+        if not self.menu.caller:
+            self.menu.caller = button  # Required to open the menu
+        self.menu.open()
+
+    def menu_callback(self, page):
+        MealSuggestionApp.previous = MDApp.get_running_app().root.current
+        MDApp.get_running_app().root.current = page
+        self.menu.dismiss()
+
 
 
 if __name__ == "__main__":

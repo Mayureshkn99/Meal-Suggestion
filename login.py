@@ -141,7 +141,7 @@ class SignUpPage(MDScreen):
                 toast(error)
             return
 
-        DB.update({username : "Add meals to display"})
+        DB.update({username : ""})
         self.ids.username.text = ""
         self.ids.password.text = ""
         self.ids.re_password.text = ""

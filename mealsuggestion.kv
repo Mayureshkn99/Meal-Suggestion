@@ -4,6 +4,9 @@
 WindowManager:
     LoginPage:
     SignUpPage:
+    AccountPage:
+    SettingsPage:
+    ChangePasswordPage:
     HomePage:
     MealTypeSelectionPage:
     AddRestaurantMealPage:
@@ -110,12 +113,53 @@ WindowManager:
         padding: ("20dp", "10dp")
 
 
+<AccountPage>
+    name: "AccountPage"
+    MyBoxLayout:
+        size: root.width, root.height
+        MDToolbar:
+            title:'Account'
+        FloatLayout:
+            padding: "20dp"
+            orientation: "vertical"
+            MDLabel:
+                id: username
+                text: "Hi, "
+                theme_text_color: "Custom"
+                text_color: 1, 0.5, 0, 1
+                font_style: "H5"
+                halign: "center"
+                size_hint_y: None
+                pos_hint: {'center_y': 0.9}
+                height: "70dp"
+            MDFillRoundFlatButton:
+                text: "Change Password"
+                size_hint: 0.9, None
+                pos_hint: {'center_x': 0.5, "center_y": 0.7}
+                height: "50dp"
+            MDFillRoundFlatButton:
+                text: "Logout"
+                size_hint: 0.9, None
+                pos_hint: {'center_x': 0.5, "center_y": 0.6}
+                height: "50dp"
+                on_release: root.confirm(self)
+
+
+<SettingsPage>
+    name: "SettingsPage"
+    MyBoxLayout:
+        size: root.width, root.height
+        MDToolbar:
+            title:'Settings'
+
+
 <HomePage>:
     name: "HomePage"
     MyBoxLayout:
         size: root.width, root.height
         MDToolbar:
             title:'Su-gest'
+            right_action_items: [["account", lambda x: app.callback(x)]]
         MyButton:
             text: "Add Meal"
             on_release:
@@ -139,6 +183,7 @@ WindowManager:
         size: root.width, root.height
         MDToolbar:
             title:'Su-gest'
+            right_action_items: [["account", lambda x: app.callback(x)]]
         MyButton:
             text: "Restaurant"
             on_release:
